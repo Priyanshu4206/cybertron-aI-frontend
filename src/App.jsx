@@ -1,0 +1,168 @@
+import { useState, useEffect, memo } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { ThemeProvider } from 'styled-components';
+import GlobalStyle from './styles/GlobalStyle';
+import theme from './styles/theme';
+
+// Auth Pages
+import SignUp from './pages/SignUp';
+import Login from './pages/Login';
+import OTP from './pages/OTP';
+
+// Onboarding Pages
+import Onboarding from './pages/Onboarding';
+
+// Future Page for the Pricing - To Do Later 
+import Pricing from './pages/Pricing';
+
+// Main App Pages
+import Explore from './pages/Explore';
+
+// Tools
+import TextGenerator from './components/tools/TextGenerator';
+// import ImageGenerator from './components/tools/ImageGenerator';
+import CodeAssistant from './components/tools/CodeAssistant';
+import AudioGenerator from './components/tools/AudioGenerator';
+// import ScriptGenerator from './components/tools/ScriptGenerator';
+import ScriptGenerator from './pages/ScriptGenerator';
+
+// Auth Context
+import { AuthProvider, useAuth } from './context/AuthContext';
+
+// UI Context
+import { UIProvider } from './context/UIContext';
+
+// Loading Spinner
+import Spinner from './components/common/Spinner';
+import AiChat from './pages/AiChat';
+import ImageGenerator from './pages/ImageGenereator';
+
+// Protected Route Component with loading state handling
+const ProtectedRoute = memo(({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh'
+      }}>
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  return isAuthenticated ? children : (
+    <Navigate
+      to="/login"
+      state={{ from: location }}
+      replace
+    />
+  );
+});
+
+// Public Only Route (redirects to /chat if already authenticated)
+const PublicOnlyRoute = memo(({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh'
+      }}>
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  return isAuthenticated ? <Navigate to="/chat" replace /> : children;
+});
+
+function App() {
+  return (
+    <ThemeProvider theme={theme}>
+      <GlobalStyle />
+      <AuthProvider>
+        <UIProvider>
+          <Router>
+            <Routes>
+              {/* Auth Routes - Public Only (redirect to /chat if already logged in) */}
+              <Route path="/signup" element={
+                <PublicOnlyRoute>
+                  <SignUp />
+                </PublicOnlyRoute>
+              } />
+              <Route path="/login" element={
+                <PublicOnlyRoute>
+                  <Login />
+                </PublicOnlyRoute>
+              } />
+              <Route path="/otp" element={<OTP />} /> {/* Keep OTP accessible from both states */}
+
+              {/* Onboarding Routes - Public Only (redirect to /chat if already logged in) */}
+              <Route path="/onboarding" element={
+                <PublicOnlyRoute>
+                  <Onboarding />
+                </PublicOnlyRoute>
+              } />
+
+              {/* Main App Routes - Protected */}
+              <Route path="/explore" element={
+                <ProtectedRoute>
+                  <Explore />
+                </ProtectedRoute>
+              } />
+
+              {/* Tool Routes - Protected */}
+              <Route path="/works/text-generator" element={
+                <ProtectedRoute>
+                  <TextGenerator />
+                </ProtectedRoute>
+              } />
+              <Route path="/works/script-writing" element={
+                <ProtectedRoute>
+                  <ScriptGenerator />
+                </ProtectedRoute>
+              } />
+              <Route path="/tools/text-to-image" element={
+                <ProtectedRoute>
+                  <ImageGenerator />
+                </ProtectedRoute>
+              } />
+              <Route path="/tools/code-assistant" element={
+                <ProtectedRoute>
+                  <CodeAssistant />
+                </ProtectedRoute>
+              } />
+              <Route path="/tools/audio-generator" element={
+                <ProtectedRoute>
+                  <AudioGenerator />
+                </ProtectedRoute>
+              } />
+
+              {/* Pricing Page */}
+              <Route path="/pricing" element={<Pricing />} />
+
+              {/* Main App Routes - Protected */}
+              <Route path="/chat" element={<AiChat />} />
+
+              {/* Allow public landing at /chat but protect inner content */}
+              <Route path="/" element={<Navigate to="/chat" />} />
+
+              {/* Catch all other routes */}
+              <Route path="*" element={<Navigate to="/chat" />} />
+            </Routes>
+          </Router>
+        </UIProvider>
+      </AuthProvider>
+    </ThemeProvider>
+  );
+}
+
+export default App;
