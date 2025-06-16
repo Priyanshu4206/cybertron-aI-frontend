@@ -14,6 +14,7 @@ const SubSidebarContainer = styled.div`
   box-shadow: ${({ isOpen }) => (isOpen ? '2px 0 5px rgba(0, 0, 0, 0.05)' : 'none')};
   display: flex;
   flex-direction: column;
+  border-right: 1px solid #e0e0e0;
 `;
 
 const SubSidebarHeader = styled.div`
@@ -149,7 +150,6 @@ const SubSidebar = ({
         return contextName;
     }
   };
-  console.log(currentView);
   const renderContent = () => {
     switch (currentView) {
       case 'nav':

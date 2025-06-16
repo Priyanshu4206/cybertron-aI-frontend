@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { MdImage } from 'react-icons/md';
 import Spinner from '../common/Spinner';
 
 const LoadingContainer = styled.div`
@@ -10,6 +9,20 @@ const LoadingContainer = styled.div`
   justify-content: center;
   height: 100%;
   gap: 16px;
+`;
+
+const Title = styled.h2`
+  font-size: 28px;
+  margin-bottom: 16px;
+  color: #000;
+  text-align: center;
+`;
+
+const Description = styled.p`
+  font-size: 16px;
+  color: #666;
+  text-align: center;
+  max-width: 600px;
 `;
 
 export const LoadingView = ({ message = "Generating your images... Please wait." }) => {
@@ -32,13 +45,15 @@ const EmptyStateContainer = styled.div`
 `;
 
 export const EmptyState = ({ 
-  icon = <MdImage size={64} />, 
-  message = "Enter a prompt and generate images to see results here" 
+  title = "Create Stunning Images", 
+  description = "Enter a prompt and generate images to see results here" 
 }) => {
   return (
     <EmptyStateContainer>
-      {icon}
-      <p>{message}</p>
+      <Title>{title}</Title>
+      <Description>
+        {description}
+      </Description>
     </EmptyStateContainer>
   );
 };

@@ -20,11 +20,8 @@ import Explore from './pages/Explore';
 
 // Tools
 import TextGenerator from './components/tools/TextGenerator';
-// import ImageGenerator from './components/tools/ImageGenerator';
-import CodeAssistant from './components/tools/CodeAssistant';
 import AudioGenerator from './components/tools/AudioGenerator';
 import ScriptGenerator from './pages/ScriptGenerator';
-import ImageGenerator from './pages/ImageGenereator';
 
 // Auth Context
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -35,6 +32,8 @@ import { UIProvider } from './context/UIContext';
 // Loading Spinner
 import Spinner from './components/common/Spinner';
 import AiChat from './pages/AiChat';
+import ImageGenerator from './pages/ImageGenerator';
+import ThumbnailGenerator from './pages/ThumbnailGenerator';
 
 // Protected Route Component with loading state handling
 const ProtectedRoute = memo(({ children }) => {
@@ -133,9 +132,9 @@ function App() {
                   <ImageGenerator />
                 </ProtectedRoute>
               } />
-              <Route path="/tools/code-assistant" element={
+              <Route path="/tools/thumbnail-creation" element={
                 <ProtectedRoute>
-                  <CodeAssistant />
+                  <ThumbnailGenerator />
                 </ProtectedRoute>
               } />
               <Route path="/tools/audio-generator" element={

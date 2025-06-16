@@ -7,7 +7,7 @@ const ImagesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
-  margin-top: 20px;
+  padding: 20px;
 `;
 
 const ImageCard = styled.div`
@@ -16,6 +16,7 @@ const ImageCard = styled.div`
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s;
+  cursor: pointer;
 `;
 
 const ImageContainer = styled.div`
@@ -78,7 +79,7 @@ const ImageGrid = ({ images, selectedImages, onSelectImage, onDownloadImage }) =
   return (
     <ImagesGrid>
       {images.map((image) => (
-        <ImageCard key={image.id}>
+        <ImageCard key={image.id} onClick={() => onSelectImage(image.id)}>
           <ImageContainer>
             <StyledImage src={image.url} alt={image.alt} />
               <SelectImageButton 
