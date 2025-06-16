@@ -23,8 +23,8 @@ import TextGenerator from './components/tools/TextGenerator';
 // import ImageGenerator from './components/tools/ImageGenerator';
 import CodeAssistant from './components/tools/CodeAssistant';
 import AudioGenerator from './components/tools/AudioGenerator';
-// import ScriptGenerator from './components/tools/ScriptGenerator';
 import ScriptGenerator from './pages/ScriptGenerator';
+import ImageGenerator from './pages/ImageGenereator';
 
 // Auth Context
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -35,13 +35,11 @@ import { UIProvider } from './context/UIContext';
 // Loading Spinner
 import Spinner from './components/common/Spinner';
 import AiChat from './pages/AiChat';
-import ImageGenerator from './pages/ImageGenereator';
 
 // Protected Route Component with loading state handling
 const ProtectedRoute = memo(({ children }) => {
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
-
   if (loading) {
     return (
       <div style={{
@@ -125,7 +123,7 @@ function App() {
                   <TextGenerator />
                 </ProtectedRoute>
               } />
-              <Route path="/works/script-writing" element={
+              <Route path="/tools/script-writing" element={
                 <ProtectedRoute>
                   <ScriptGenerator />
                 </ProtectedRoute>

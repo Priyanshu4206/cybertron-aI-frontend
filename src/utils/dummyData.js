@@ -18,44 +18,59 @@ import { TbTransform } from "react-icons/tb";
 // Main tool categories for the initial view
 export const mainTools = [
   {
+    id: "text-generator",
+    name: "Start Chat",
+    description: "Begin an AI-powered conversation for any topic.",
+    icon: HiOutlineChatBubbleLeftRight,
+    category: "Start Chat",
+    route: "/chat",
+  },
+  {
+    id: "content-generator",
     icon: MdBrush,
-    label: "Content Creation",
+    name: "Content Creation",
     color: "#e8f5e8",
     route: "/tools/content-generator",
   },
   {
+    id: "script-writing",
     icon: LuFileText,
-    label: "Script Writing",
+    name: "Script Writing",
     color: "#f0e8f5",
-    route: "tools/script-generator",
+    route: "/tools/script-writing",
   },
   {
+    id: "text-to-image",
     icon: LuImage,
-    label: "Text to Image",
+    name: "Text to Image",
     color: "#fff8e8",
     route: "/tools/text-to-image",
   },
   {
+    id: "text-to-audio",
     icon: PiFileAudioFill,
-    label: "Text to Audio",
+    name: "Text to Audio",
     color: "#e8e8f5",
     route: "/tools/text-to-audio",
   },
   {
+    id: "text-to-video",
     icon: PiFileVideoBold,
-    label: "Text to Video",
+    name: "Text to Video",
     color: "#f5e8e8",
     route: "/tools/text-to-video",
   },
   {
+    id: "video-to-text",
     icon: LuFileText,
-    label: "Video to text",
+    name: "Video to text",
     color: "#e8f5f0",
     route: "/tools/video-to-text",
   },
   {
+    id: "image-to-text",
     icon: GrDocumentImage,
-    label: "Image to text",
+    name: "Image to text",
     color: "#e8f0f5",
     route: "/tools/image-to-text",
   },
@@ -72,6 +87,7 @@ export const aiTools = [
     category: "Image Generation",
     platforms: [],
     popular: true,
+    route: "tools/text-to-image",
   },
   {
     id: "video-generator",
@@ -81,6 +97,7 @@ export const aiTools = [
     category: "Video Generation",
     platforms: [],
     popular: true,
+    route: "/tools/video-generator",
   },
   {
     id: "audio-generator",
@@ -90,6 +107,7 @@ export const aiTools = [
     category: "Audio Generation",
     platforms: [],
     popular: true,
+    route: "/tools/audio-generator",
   },
   {
     id: "content-generator",
@@ -100,6 +118,7 @@ export const aiTools = [
     category: "Content Creation",
     platforms: ["Instagram", "Facebook", "Twitter", "LinkedIn"],
     popular: true,
+    route: "/tools/content-generator",
   },
   {
     id: "document-creation",
@@ -109,6 +128,7 @@ export const aiTools = [
     category: "Document Creation",
     platforms: [],
     popular: false,
+    route: "/tools/document-creation",
   },
   {
     id: "ai-video-editing",
@@ -118,6 +138,7 @@ export const aiTools = [
     category: "AI Video Editing",
     platforms: [],
     popular: false,
+    route: "/tools/ai-video-editing",
   },
   {
     id: "thumbnail-creation",
@@ -127,24 +148,19 @@ export const aiTools = [
     category: "Thumbnail creation",
     platforms: [],
     popular: false,
+    route: "/tools/thumbnail-creation",
   },
 ];
 
 // AI Works Data
 export const aiWorks = [
   {
-    id: "text-generator",
-    name: "Start Chat",
-    description: "Begin an AI-powered conversation for any topic.",
-    icon: HiOutlineChatBubbleLeftRight,
-    category: "Start Chat",
-  },
-  {
     id: "text-to-video",
     name: "Text to Video",
     description: "Convert written content into engaging video presentations.",
     icon: PiFileVideoBold,
     category: "Text to Video",
+    route: "/works/text-to-video",
   },
   {
     id: "script-writing",
@@ -153,6 +169,7 @@ export const aiWorks = [
       "Generate compelling scripts for videos, podcasts, and presentations.",
     icon: LuFileText,
     category: "Script writing",
+    route: "/works/script-writing",
   },
   {
     id: "text-to-image",
@@ -160,6 +177,7 @@ export const aiWorks = [
     description: "Create beautiful images from text descriptions.",
     icon: LuImage,
     category: "Text to image",
+    route: "/works/text-to-image",
   },
   {
     id: "image-to-text",
@@ -167,6 +185,7 @@ export const aiWorks = [
     description: "Extract detailed text descriptions from images.",
     icon: GrDocumentImage,
     category: "Image to Text",
+    route: "/works/image-to-text",
   },
   {
     id: "text-to-audio",
@@ -174,6 +193,7 @@ export const aiWorks = [
     description: "Convert text into natural-sounding speech and audio.",
     icon: PiFileAudioFill,
     category: "Text to Audio",
+    route: "/works/text-to-audio",
   },
   {
     id: "text-paraphrasing",
@@ -181,6 +201,7 @@ export const aiWorks = [
     description: "Rewrite and improve text while maintaining original meaning.",
     icon: TbTransform,
     category: "Text paraphrasing",
+    route: "/works/text-paraphrasing",
   },
   {
     id: "text-translation",
@@ -188,6 +209,7 @@ export const aiWorks = [
     description: "Translate text between multiple languages accurately.",
     icon: HiOutlineLanguage,
     category: "Text Translation",
+    route: "/works/text-translation",
   },
 ];
 

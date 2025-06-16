@@ -1,113 +1,90 @@
 import React from 'react';
 import styled from 'styled-components';
-import { createElement } from 'react';
+import { mainTools, aiWorks } from '../../utils/dummyData';
 
-const ListContainer = styled.div`
+const NavigationContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
-  overflow-y: auto;
-  height: 100%;
 `;
 
-const NavItem = styled.div`
+const NavigationItem = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 12px;
+  padding: 12px;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  background-color: ${({ active }) => (active ? '#f0f0f0' : 'transparent')};
+  transition: all 0.2s;
+  color: ${props => props.active ? '#fff' : '#ccc'};
+  background-color: ${props => props.active ? 'rgba(255, 255, 255, 0.1)' : 'transparent'};
   
   &:hover {
-    background-color: #f0f0f0;
+    background-color: rgba(255, 255, 255, 0.1);
   }
 `;
 
-const ItemIcon = styled.div`
+const IconWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
-  color: #555;
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
 `;
 
-const ItemInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow: hidden;
-`;
-
-const ItemTitle = styled.span`
-  font-size: 0.95rem;
+const Label = styled.div`
+  font-size: 14px;
   font-weight: 500;
-  color: #333;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 `;
 
-const ItemDescription = styled.span`
-  font-size: 0.8rem;
-  color: #888;
-  margin-top: 2px;
+const Divider = styled.div`
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin: 8px 0;
 `;
 
-const SectionTitle = styled.h4`
-  font-size: 0.85rem;
-  color: #777;
-  margin: 16px 0 8px 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  
-  &:first-child {
-    margin-top: 0;
-  }
+const CategoryLabel = styled.div`
+  font-size: 12px;
+  color: #999;
+  padding: 0 12px;
 `;
 
-/**
- * NavigationList component that shows navigation options
- */
-const NavigationList = ({ items = [], activeItemId, onItemSelect }) => {
-  // Group items by category
-  const groupedItems = items.reduce((acc, item) => {
-    const category = item.category || 'Other';
-    if (!acc[category]) acc[category] = [];
-    acc[category].push(item);
-    return acc;
-  }, {});
-
-  // Sort categories to ensure consistent order
-  const sortedCategories = Object.keys(groupedItems).sort();
-
+const NavigationList = ({ activeItem, onSelectItem }) => {
   return (
-    <ListContainer>
-      {sortedCategories.map((category) => (
-        <React.Fragment key={category}>
-          <SectionTitle>{category}</SectionTitle>
-          {groupedItems[category].map((item) => (
-            <NavItem 
-              key={item.id || item.route || `${item.label}`}
-              active={item.id === activeItemId || item.route === activeItemId}
-              onClick={() => onItemSelect && onItemSelect(item.route || item.id, item)}
-            >
-              <ItemIcon>
-                {createElement(item.icon)}
-              </ItemIcon>
-              <ItemInfo>
-                <ItemTitle>{item.label}</ItemTitle>
-                {item.description && (
-                  <ItemDescription>{item.description}</ItemDescription>
-                )}
-              </ItemInfo>
-            </NavItem>
-          ))}
-        </React.Fragment>
+    <NavigationContainer>
+      <CategoryLabel>AI Tools</CategoryLabel>
+
+      {mainTools.map(item => (
+        <NavigationItem 
+          key={item.id}
+          active={activeItem === item.id}
+          onClick={() => onSelectItem(item.id, item.route)}
+        >
+          <IconWrapper>
+            <item.icon />
+          </IconWrapper>
+          <Label>{item.name}</Label>
+        </NavigationItem>
       ))}
-    </ListContainer>
+      
+      {/* <Divider />
+      <CategoryLabel>AI Works</CategoryLabel> */}
+      
+        {/* {aiWorks.map(item => (
+          <NavigationItem 
+            key={item.id}
+            active={activeItem === item.id}
+            onClick={() => onSelectItem(item.id, item.route`)}
+          >
+            <IconWrapper>
+              <item.icon />
+            </IconWrapper>
+            <Label>{item.name}</Label>
+          </NavigationItem>
+        ))} */}
+    </NavigationContainer>
   );
 };
 
-export default NavigationList; 
+export default NavigationList;

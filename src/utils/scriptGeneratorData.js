@@ -1,54 +1,100 @@
-// Script Generator Dummy Data
-export const scriptTemplates = [
-  {
-    id: 'youtube-script',
-    name: 'YouTube Video Script',
-    description: 'A script template for YouTube videos with intro, main content, and call to action.',
-    structure: [
-      { name: 'Introduction', description: 'Hook the viewer and introduce the topic' },
-      { name: 'Main Content', description: 'Deliver the core information or story' },
-      { name: 'Call to Action', description: 'Ask viewers to like, subscribe, and comment' }
-    ]
-  },
-  {
-    id: 'podcast-script',
-    name: 'Podcast Script',
-    description: 'A structured script for podcast episodes with segments and transitions.',
-    structure: [
-      { name: 'Intro Music & Welcome', description: 'Welcome listeners and introduce the show' },
-      { name: 'Topic Introduction', description: 'Introduce the main topic of the episode' },
-      { name: 'Main Discussion', description: 'The core content of your podcast' },
-      { name: 'Guest Interview', description: 'Questions and discussion with guests' },
-      { name: 'Conclusion', description: 'Summarize key points and thank listeners' },
-      { name: 'Outro', description: 'Closing remarks and call to action' }
-    ]
-  },
-  {
-    id: 'short-film',
-    name: 'Short Film Script',
-    description: 'A template for creating short film scripts with proper formatting.',
-    structure: [
-      { name: 'Scene Heading', description: 'INT/EXT. LOCATION - TIME OF DAY' },
-      { name: 'Action', description: 'Description of what happens in the scene' },
-      { name: 'Character', description: 'CHARACTER NAME' },
-      { name: 'Dialogue', description: 'What the character says' },
-      { name: 'Parenthetical', description: '(direction for how dialogue is delivered)' },
-      { name: 'Transition', description: 'CUT TO:, DISSOLVE TO:, etc.' }
-    ]
-  },
-  {
-    id: 'explainer-video',
-    name: 'Explainer Video Script',
-    description: 'A script template for creating clear and concise explainer videos.',
-    structure: [
-      { name: 'Problem Statement', description: 'Identify the problem your product/service solves' },
-      { name: 'Solution Introduction', description: 'Introduce your solution' },
-      { name: 'How It Works', description: 'Explain how your solution works' },
-      { name: 'Benefits', description: 'Highlight the key benefits' },
-      { name: 'Social Proof', description: 'Include testimonials or statistics' },
-      { name: 'Call to Action', description: 'Tell viewers what to do next' }
-    ]
-  }
+// Script Languages Data
+export const scriptLanguage = [
+  { id: 'english', name: 'English' },
+  { id: 'japanese', name: 'Japanese (日本語)' },
+  { id: 'arabic', name: 'Arabic (العربية)' },
+  { id: 'hindi', name: 'Hindi (हिन्दी)' },
+  { id: 'bengali', name: 'Bengali (বাংলা)' },
+  { id: 'urdu', name: 'Urdu (اردو)' },
+];
+
+// Script Types Data
+export const scriptType = [
+  { id: 'educational', name: 'Educational & Tutorial' },
+  { id: 'entertainment', name: 'Entertainment & Comedy' },
+  { id: 'review', name: 'Product Review & Unboxing' },
+  { id: 'gaming', name: 'Gaming & Esports' },
+  { id: 'vlog', name: 'Personal Vlog & Lifestyle' },
+  { id: 'news', name: 'News & Commentary' },
+  { id: 'tech', name: 'Technology & Innovation' },
+  { id: 'fitness', name: 'Health & Fitness' },
+  { id: 'cooking', name: 'Cooking & Food' },
+  { id: 'travel', name: 'Travel & Adventure' },
+  { id: 'music', name: 'Music & Performance' },
+  { id: 'art', name: 'Art & Creative' },
+  { id: 'business', name: 'Business & Entrepreneurship' },
+  { id: 'finance', name: 'Finance & Investment' },
+  { id: 'science', name: 'Science & Discovery' },
+  { id: 'documentary', name: 'Documentary & Investigation' },
+  { id: 'interview', name: 'Interview & Podcast' },
+  { id: 'reaction', name: 'Reaction & Commentary' },
+  { id: 'challenge', name: 'Challenge & Competition' },
+  { id: 'diy', name: 'DIY & Crafts' },
+  { id: 'beauty', name: 'Beauty & Fashion' },
+  { id: 'parenting', name: 'Parenting & Family' },
+  { id: 'pets', name: 'Pets & Animals' },
+  { id: 'sports', name: 'Sports & Athletics' },
+  { id: 'motivation', name: 'Motivation & Self-Help' },
+  { id: 'horror', name: 'Horror & Thriller' },
+  { id: 'mystery', name: 'Mystery & True Crime' },
+  { id: 'animation', name: 'Animation & Cartoon' },
+  { id: 'kids', name: 'Kids & Family Content' },
+  { id: 'asmr', name: 'ASMR & Relaxation' }
+];
+
+// Industries Data
+export const scriptIndustry = [
+  { id: 'general', name: 'General/Lifestyle' },
+  { id: 'technology', name: 'Technology & Software' },
+  { id: 'healthcare', name: 'Healthcare & Medical' },
+  { id: 'education', name: 'Education & Training' },
+  { id: 'finance', name: 'Finance & Banking' },
+  { id: 'retail', name: 'Retail & E-commerce' },
+  { id: 'entertainment', name: 'Entertainment & Media' },
+  { id: 'automotive', name: 'Automotive & Transportation' },
+  { id: 'real_estate', name: 'Real Estate & Property' },
+  { id: 'food_beverage', name: 'Food & Beverage' },
+  { id: 'fashion', name: 'Fashion & Beauty' },
+  { id: 'sports', name: 'Sports & Recreation' },
+  { id: 'travel', name: 'Travel & Tourism' },
+  { id: 'fitness', name: 'Fitness & Wellness' },
+  { id: 'gaming', name: 'Gaming & Esports' },
+  { id: 'music', name: 'Music & Audio' },
+  { id: 'art', name: 'Art & Design' },
+  { id: 'photography', name: 'Photography & Videography' },
+  { id: 'business', name: 'Business & Consulting' },
+  { id: 'marketing', name: 'Marketing & Advertising' },
+  { id: 'legal', name: 'Legal & Law' },
+  { id: 'insurance', name: 'Insurance & Risk Management' },
+  { id: 'construction', name: 'Construction & Architecture' },
+  { id: 'manufacturing', name: 'Manufacturing & Industrial' },
+  { id: 'agriculture', name: 'Agriculture & Farming' },
+  { id: 'energy', name: 'Energy & Utilities' },
+  { id: 'environmental', name: 'Environmental & Sustainability' },
+  { id: 'nonprofit', name: 'Non-Profit & Social Causes' },
+  { id: 'government', name: 'Government & Public Sector' },
+  { id: 'military', name: 'Military & Defense' },
+  { id: 'science', name: 'Science & Research' },
+  { id: 'aerospace', name: 'Aerospace & Aviation' },
+  { id: 'maritime', name: 'Maritime & Shipping' },
+  { id: 'mining', name: 'Mining & Resources' },
+  { id: 'telecommunications', name: 'Telecommunications' },
+  { id: 'pharmaceuticals', name: 'Pharmaceuticals & Biotech' },
+  { id: 'chemicals', name: 'Chemicals & Materials' },
+  { id: 'textiles', name: 'Textiles & Apparel' },
+  { id: 'logistics', name: 'Logistics & Supply Chain' },
+  { id: 'hospitality', name: 'Hospitality & Events' },
+  { id: 'pets', name: 'Pets & Animal Care' },
+  { id: 'home_garden', name: 'Home & Garden' },
+  { id: 'crafts', name: 'Crafts & Hobbies' },
+  { id: 'collectibles', name: 'Collectibles & Antiques' },
+  { id: 'spirituality', name: 'Spirituality & Religion' },
+  { id: 'personal_development', name: 'Personal Development' },
+  { id: 'relationships', name: 'Relationships & Dating' },
+  { id: 'parenting', name: 'Parenting & Child Care' },
+  { id: 'seniors', name: 'Seniors & Aging' },
+  { id: 'disability', name: 'Disability & Accessibility' },
+  { id: 'mental_health', name: 'Mental Health & Therapy' }
 ];
 
 export const scriptHistory = [
@@ -91,7 +137,6 @@ export const sampleScriptContent = `# How to Make Perfect Pasta
 ## Introduction
 
 Hello pasta lovers! Welcome back to my channel. Today, I'm going to share with you my foolproof method for making perfect pasta every single time. If you've ever ended up with sticky, mushy, or bland pasta, this video is going to change your pasta game forever.
-
 ## Main Content
 
 ### Choosing the Right Pasta
@@ -150,7 +195,8 @@ If you enjoyed this tutorial, please give this video a thumbs up, share it with 
 
 Drop a comment below telling me your favorite pasta dish, and I might make it in an upcoming video.
 
-Thanks for watching, and I'll see you in the next one!`;
+Thanks for watching, and I'll see you in the next one!
+`;
 
 export const fontSizes = [
   { value: '10px', label: '10' },

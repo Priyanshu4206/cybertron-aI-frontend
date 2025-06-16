@@ -19,6 +19,7 @@
     "draft-js-import-markdown": "^1.4.1",
     "formik": "^2.4.6",
     "framer-motion": "^12.17.3",
+    "html2pdf.js": "^0.10.3",
     "postcss": "^8.5.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

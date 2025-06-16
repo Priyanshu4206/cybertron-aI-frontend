@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import Layout from '../components/layout/Layout';
 
 // Data
-import { aiTools, aiWorks } from '../utils/dummyData';
+import { aiWorks, aiTools } from '../utils/dummyData';
 import AiToolCard from '../components/explore/ToolCard';
 import AiWorkCard from '../components/explore/WorkCard';
 
@@ -162,7 +162,7 @@ const Explore = () => {
               {filterTools(aiTools, search).map((tool) => (
                 <AiToolCard
                   key={tool.id}
-                  onClick={() => handleToolClick(`/tools/${tool.id}`)}
+                  onClick={() => handleToolClick(tool.route)}
                   icon={tool.icon}
                   title={tool.name}
                   platforms={tool.platforms}
@@ -179,7 +179,7 @@ const Explore = () => {
               {filterWorks(aiWorks, search).map((work) => (
                 <AiWorkCard
                   key={work.id}
-                  onClick={() => handleToolClick(`/works/${work.id}`)}
+                  onClick={() => handleToolClick(tool.route)}
                   icon={work.icon}
                   title={work.name}
                   description={work.description}

@@ -6,6 +6,7 @@ import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 const SubSidebarContainer = styled.div`
   min-width: ${({ isOpen }) => (isOpen ? '280px' : '48px')};
+  max-width: 450px;
   background: ${({currentView}) => currentView === 'nav' ? '#181818' : '#fff' };
   height: calc(100vh - 64px);
   overflow-y: hidden;

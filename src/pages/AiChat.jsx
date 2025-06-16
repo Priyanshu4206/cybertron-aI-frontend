@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { createElement } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -163,12 +163,7 @@ const AiChat = () => {
     const { isAuthenticated } = useAuth();
     const { isChatActive, activateChat } = useUI();
     const chatInterfaceRef = useRef(null);
-    
-    // Process tools for navigation list
-    const navigationItems = mainTools.map(tool => ({
-        ...tool,
-        category: tool.category || 'Tools'
-    }));
+    const [activeNavItem, setActiveNavItem] = useState('text-to-image');    
     
     // Handle tool click with auth check
     const handleToolClick = (route) => {
@@ -205,6 +200,19 @@ const AiChat = () => {
         }
     };
 
+    // Navigation functions
+    const handleNavItemClick = (itemId, route) => {
+      setActiveNavItem(itemId);
+      // Add navigation logic here
+      if (isAuthenticated) {
+        if (route) {
+            navigate(route);
+        }
+    } else {
+        navigate('/login', { state: { from: { pathname: route || '/chat' } } });
+    }
+    };
+
     return (
         <Layout title="Chat">
             <MainContainer isChatActive={isChatActive}>
@@ -212,7 +220,7 @@ const AiChat = () => {
                     <SubSidebar
                         contextName="Chat with AI"
                         mainContent={<ChatHistory onNewChat={handleNewChat} />}
-                        navigationContent={<NavigationList items={navigationItems} onItemSelect={handleToolClick} />}
+                        navigationContent={<NavigationList activeItem={activeNavItem} onSelectItem={handleNavItemClick} />}
                         showHistoryToggle={false}
                     />
                 </SidebarContainer>
@@ -241,12 +249,12 @@ const AiChat = () => {
                 <ToolGrid isChatActive={isChatActive}>
                     {mainTools.map((tool, idx) => (
                         <ToolCard
-                            key={`${tool.label}-${idx}`}
+                            key={`${tool.name}-${idx}`}
                             color={tool.color}
                             onClick={() => handleToolClick(tool.route)}
                         >
                             <ToolIcon>{createElement(tool.icon)}</ToolIcon>
-                            {tool.label}
+                            {tool.name}
                         </ToolCard>
                     ))}
                 </ToolGrid>

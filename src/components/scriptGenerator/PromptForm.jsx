@@ -1,63 +1,34 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { scriptTemplates } from '../../utils/scriptGeneratorData';
+import { scriptLanguage, scriptType, scriptIndustry } from '../../utils/scriptGeneratorData';
+import PromptInput from '../common/PromptInput';
+import Input from '../common/Input';
 
 const FormContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
   padding: 0 8px;
+  width: 100%;
+  height: 100%;
 `;
 
-const InputGroup = styled.div`
+const FormGroup = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem;
+  width: 100%;
 `;
 
 const Label = styled.label`
-  font-size: 14px;
   font-weight: 500;
-  color: #333;
-`;
-
-const TextArea = styled.textarea`
-  min-height: 120px;
-  padding: 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 14px;
-  font-family: inherit;
-  resize: vertical;
+  font-size: 0.9rem;
+  color: #111827;
   
-  &:focus {
-    outline: none;
-    border-color: #000;
-  }
-`;
-
-const Input = styled.input`
-  padding: 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 14px;
-  
-  &:focus {
-    outline: none;
-    border-color: #000;
-  }
-`;
-
-const Select = styled.select`
-  padding: 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background: white;
-  font-size: 14px;
-  
-  &:focus {
-    outline: none;
-    border-color: #000;
+  .required {
+    color: #e53e3e;
+    margin-left: 2px;
   }
 `;
 
@@ -67,40 +38,45 @@ const CharCount = styled.div`
   color: ${props => props.count > 2000 ? 'red' : '#666'};
 `;
 
-const TemplateInfo = styled.div`
+const SettingsContainer = styled.div`
   background: #f9f9f9;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  padding: 12px;
-  margin-top: 8px;
+  padding: 16px;
 `;
 
-const TemplateTitle = styled.h4`
-  margin: 0 0 8px 0;
-  font-size: 14px;
-`;
-
-const TemplateDescription = styled.p`
+const SettingsTitle = styled.h4`
   margin: 0 0 12px 0;
-  font-size: 13px;
-  color: #666;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
 `;
 
-const TemplateStructure = styled.ul`
-  margin: 0;
-  padding-left: 20px;
-  font-size: 13px;
-`;
-
-const TemplateStructureItem = styled.li`
-  margin-bottom: 4px;
+const SelectorsRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
   
-  strong {
-    color: #333;
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
   }
-  
-  span {
-    color: #666;
+`;
+
+const Selector = styled.select`
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  min-width: 100px;
+  flex: 1;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #111827;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: #000;
   }
 `;
 
@@ -129,36 +105,37 @@ const GenerateButton = styled.button`
 
 const PromptForm = ({ onGenerate }) => {
   const [prompt, setPrompt] = useState('');
-  const [title, setTitle] = useState('');
-  const [selectedTemplate, setSelectedTemplate] = useState('');
-  const [tone, setTone] = useState('professional');
-  const [length, setLength] = useState('medium');
+  const [keywordsList, setKeywordsList] = useState('');
+  const [referenceLink, setReferenceLink] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState('english');
+  const [selectedScriptType, setSelectedScriptType] = useState('educational');
+  const [selectedIndustry, setSelectedIndustry] = useState('general');
   const [isGenerating, setIsGenerating] = useState(false);
   
-  const handlePromptChange = (e) => {
-    setPrompt(e.target.value);
+  const handleKeywordListChange = (e) => {
+    setKeywordsList(e.target.value);
   };
   
-  const handleTitleChange = (e) => {
-    setTitle(e.target.value);
+  const handleReferenceLinkChange = (e) => {
+    setReferenceLink(e.target.value);
   };
   
-  const handleTemplateChange = (e) => {
-    setSelectedTemplate(e.target.value);
+  const handleLanguageChange = (e) => {
+    setSelectedLanguage(e.target.value);
   };
   
-  const handleToneChange = (e) => {
-    setTone(e.target.value);
+  const handleScriptTypeChange = (e) => {
+    setSelectedScriptType(e.target.value);
   };
   
-  const handleLengthChange = (e) => {
-    setLength(e.target.value);
+  const handleIndustryChange = (e) => {
+    setSelectedIndustry(e.target.value);
   };
   
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    if (!prompt.trim() || !title.trim() || !selectedTemplate) {
+    if (!prompt.trim()) {
       return;
     }
     
@@ -167,107 +144,100 @@ const PromptForm = ({ onGenerate }) => {
     // In a real app, this would call an API
     setTimeout(() => {
       onGenerate({
-        prompt,
-        title,
-        template: selectedTemplate,
-        tone,
-        length
+        prompt: prompt.trim(),
+        keywordsList: keywordsList.trim(),
+        referenceLink: referenceLink.trim(),
+        language: selectedLanguage,
+        scriptType: selectedScriptType,
+        industry: selectedIndustry,
       });
       setIsGenerating(false);
     }, 1500);
   };
   
-  // Get the selected template details
-  const templateDetails = scriptTemplates.find(template => template.id === selectedTemplate);
-  
   return (
     <FormContainer>
-      <InputGroup>
-        <Label htmlFor="title">Script Title</Label>
-        <Input 
-          id="title"
-          type="text"
-          value={title}
-          onChange={handleTitleChange}
-          placeholder="Enter a title for your script"
+      <PromptInput
+        label="Topics & Keywords & Prompts"
+        prompt={prompt}
+        setPrompt={setPrompt}
+        maxLength={2000}
+      />
+
+      <FormGroup>
+        <Label htmlFor="keywordsList">Add Keywords for rank</Label>
+        <Input
+          checks={false}
+          id="keywordsList"
+          name="keywordsList"
+          placeholder="Enter keywords separated by commas..."
+          value={keywordsList}
+          onChange={handleKeywordListChange}
+          style={{fontSize: '0.9rem'}}
         />
-      </InputGroup>
-      
-      <InputGroup>
-        <Label htmlFor="template">Script Template</Label>
-        <Select 
-          id="template"
-          value={selectedTemplate}
-          onChange={handleTemplateChange}
-        >
-          <option value="">Select a template</option>
-          {scriptTemplates.map(template => (
-            <option key={template.id} value={template.id}>
-              {template.name}
-            </option>
-          ))}
-        </Select>
-        
-        {templateDetails && (
-          <TemplateInfo>
-            <TemplateTitle>{templateDetails.name}</TemplateTitle>
-            <TemplateDescription>{templateDetails.description}</TemplateDescription>
-            <TemplateStructure>
-              {templateDetails.structure.map((item, index) => (
-                <TemplateStructureItem key={index}>
-                  <strong>{item.name}:</strong> <span>{item.description}</span>
-                </TemplateStructureItem>
-              ))}
-            </TemplateStructure>
-          </TemplateInfo>
-        )}
-      </InputGroup>
-      
-      <InputGroup>
-        <Label htmlFor="prompt">Script Description</Label>
-        <TextArea 
-          id="prompt"
-          value={prompt}
-          onChange={handlePromptChange}
-          placeholder="Describe what you want in your script..."
-        />
-        <CharCount count={prompt.length}>
-          {prompt.length}/2000
+        <CharCount count={keywordsList.length}>
+          {keywordsList.length}/1000
         </CharCount>
-      </InputGroup>
+      </FormGroup>
       
-      <InputGroup>
-        <Label htmlFor="tone">Tone</Label>
-        <Select 
-          id="tone"
-          value={tone}
-          onChange={handleToneChange}
-        >
-          <option value="professional">Professional</option>
-          <option value="casual">Casual</option>
-          <option value="humorous">Humorous</option>
-          <option value="formal">Formal</option>
-          <option value="inspirational">Inspirational</option>
-          <option value="educational">Educational</option>
-        </Select>
-      </InputGroup>
-      
-      <InputGroup>
-        <Label htmlFor="length">Length</Label>
-        <Select 
-          id="length"
-          value={length}
-          onChange={handleLengthChange}
-        >
-          <option value="short">Short (2-3 minutes)</option>
-          <option value="medium">Medium (5-7 minutes)</option>
-          <option value="long">Long (10+ minutes)</option>
-        </Select>
-      </InputGroup>
-      
+      <FormGroup>
+        <Label htmlFor="referenceLink">Add Reference Youtube Link</Label>
+        <Input
+          checks={false}
+          id="referenceLink"
+          name="referenceLink"
+          placeholder="Add Reference Youtube Link here..."
+          value={referenceLink}
+          onChange={handleReferenceLinkChange}
+          style={{fontSize: '0.9rem'}}
+        />
+        <CharCount count={referenceLink.length}>
+          {referenceLink.length}/1000
+        </CharCount>
+      </FormGroup>
+
+      <SettingsContainer>
+        <SettingsTitle>Language & Type & Industry</SettingsTitle>
+        <SelectorsRow>
+          <Selector 
+            id="language"
+            value={selectedLanguage} 
+            onChange={handleLanguageChange}
+          >
+            {scriptLanguage && scriptLanguage.map(language => (
+              <option key={language.id} value={language.id}>
+                {language.name}
+              </option>
+            ))}
+          </Selector>
+          <Selector 
+            id="scriptType"
+            value={selectedScriptType} 
+            onChange={handleScriptTypeChange}
+          >
+            {scriptType && scriptType.map(type => (
+              <option key={type.id} value={type.id}>
+                {type.name}
+              </option>
+            ))}
+          </Selector>
+          <Selector 
+            id="industry"
+            value={selectedIndustry} 
+            onChange={handleIndustryChange}
+          >
+            {scriptIndustry && scriptIndustry.map(ind => (
+              <option key={ind.id} value={ind.id}>
+                {ind.name}
+              </option>
+            ))}
+          </Selector>
+        </SelectorsRow>
+      </SettingsContainer>
+
       <GenerateButton 
         onClick={handleSubmit}
-        disabled={!prompt.trim() || !title.trim() || !selectedTemplate || isGenerating}
+        disabled={!prompt.trim() || isGenerating}
       >
         {isGenerating ? 'Generating...' : 'Generate Script'}
       </GenerateButton>
@@ -275,4 +245,4 @@ const PromptForm = ({ onGenerate }) => {
   );
 };
 
-export default PromptForm; 
+export default PromptForm;

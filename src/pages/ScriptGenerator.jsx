@@ -5,9 +5,11 @@ import SubSidebar from '../components/layout/SubSidebar';
 import PromptForm from '../components/scriptGenerator/PromptForm';
 import ScriptEditor from '../components/scriptGenerator/ScriptEditor';
 import ScriptHistory from '../components/scriptGenerator/ScriptHistory';
-import Navigation from '../components/scriptGenerator/Navigation';
 import { sampleScriptContent, scriptHistory } from '../utils/scriptGeneratorData';
 import { FaKeyboard } from 'react-icons/fa';
+import NavigationList from '../components/navigation/NavigationList';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const MainContainer = styled.div`
   display: flex;
@@ -111,31 +113,26 @@ const KeyboardIcon = styled.div`
   color: #666;
 `;
 
-const KeyboardShortcut = styled.span`
-  background: #f0f0f0;
-  padding: 2px 6px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  font-family: monospace;
-  font-weight: bold;
-`;
-
 const ScriptGenerator = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();  
   const [activeNavItem, setActiveNavItem] = useState('new-script');
   const [activeScriptId, setActiveScriptId] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedScript, setGeneratedScript] = useState('');
   const [currentTitle, setCurrentTitle] = useState('');
-  const [showTooltip, setShowTooltip] = useState(true);
-  
+
   // Handle navigation item selection
-  const handleNavItemSelect = (itemId) => {
+  const handleNavItemClick = (itemId, route) => {
     setActiveNavItem(itemId);
-    // Reset script view when switching to new script
-    if (itemId === 'new-script') {
-      setGeneratedScript('');
-      setActiveScriptId(null);
-    }
+    // Add navigation logic here
+    if (isAuthenticated) {
+      if (route) {
+          navigate(route);
+      }
+  } else {
+      navigate('/login', { state: { from: { pathname: route || '/chat' } } });
+  }
   };
   
   // Handle script selection from history
@@ -164,12 +161,6 @@ const ScriptGenerator = () => {
     setTimeout(() => {
       setGeneratedScript(sampleScriptContent);
       setIsGenerating(false);
-      // Show tooltip when script is generated
-      setShowTooltip(true);
-      // Hide tooltip after 10 seconds
-      setTimeout(() => {
-        setShowTooltip(false);
-      }, 10000);
     }, 2000);
   };
   
@@ -197,16 +188,6 @@ const ScriptGenerator = () => {
     } else if (generatedScript) {
       return (
         <EditorContainer>
-          {showTooltip && (
-            <ShortcutTooltip>
-              <KeyboardIcon>
-                <FaKeyboard />
-              </KeyboardIcon>
-              <div>
-                Select text and press <KeyboardShortcut>Alt+Q</KeyboardShortcut> to show options for making text longer or shorter
-              </div>
-            </ShortcutTooltip>
-          )}
           <ScriptEditor initialContent={generatedScript} />
         </EditorContainer>
       );
@@ -229,7 +210,7 @@ const ScriptGenerator = () => {
         <SubSidebar
           contextName="Script Generator"
           mainContent={renderMainContent()}
-          navigationContent={<Navigation activeItem={activeNavItem} onSelectItem={handleNavItemSelect} />}
+          navigationContent={<NavigationList activeItem={activeNavItem} onSelectItem={handleNavItemClick} />}
           showHistoryToggle={true}
           historyContent={<ScriptHistory onSelectScript={handleScriptSelect} activeScriptId={activeScriptId} />}
         />

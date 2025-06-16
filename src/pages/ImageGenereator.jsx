@@ -19,8 +19,9 @@ import NavigationList from '../components/navigation/NavigationList';
 // Data
 import { historyItems, ImageGeneratorSettings } from '../utils/ImageGeneratorSettings';
 import { EmptyState, LoadingView } from '../components/imageGenerator/EmptyState';
-import { mainTools } from '../utils/dummyData';
 import SettingsSelector from '../components/imageGenerator/SettingsSelector';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 
 const MainContainer = styled.div`
@@ -91,6 +92,10 @@ const SubmitButton = styled.button`
 `;
 
 const ImageGenerator = () => {
+
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();  
+
   // Form state
   const [prompt, setPrompt] = useState('');
   const [selectedRatio, setSelectedRatio] = useState('16:9');
@@ -105,7 +110,6 @@ const ImageGenerator = () => {
   
   // Selection state
   const [selectedImages, setSelectedImages] = useState([]);
-  const [selectAll, setSelectAll] = useState(false);
   const [downloadMode, setDownloadMode] = useState('none');
 
   // Navigation state
@@ -129,7 +133,6 @@ const ImageGenerator = () => {
       
       setGeneratedImages(images);
       setSelectedImages([]);
-      setSelectAll(false);
       setIsGenerating(false);
     }, 3000);
   };
@@ -143,7 +146,6 @@ const ImageGenerator = () => {
       
       // Update selectAll state based on selection count
       const allSelected = newSelection.length === generatedImages.length;
-      setSelectAll(allSelected);
       
       // Update downloadMode based on selection
       if (newSelection.length === 0) {
@@ -191,13 +193,11 @@ const ImageGenerator = () => {
       if (downloadMode === 'all') {
         // Deselect all images
         setSelectedImages([]);
-        setSelectAll(false);
         setDownloadMode('none');
       } else {
         // Select all images  
         setDownloadMode('all');
         setSelectedImages(generatedImages.map(img => img.id));
-        setSelectAll(true);
       }
     }
     // Note: 'selected' mode is now read-only and controlled by individual selections
@@ -219,9 +219,16 @@ const ImageGenerator = () => {
   
 
   // Navigation functions
-  const handleNavItemClick = (itemId) => {
+  const handleNavItemClick = (itemId, route) => {
     setActiveNavItem(itemId);
     // Add navigation logic here
+    if (isAuthenticated) {
+      if (route) {
+          navigate(route);
+      }
+  } else {
+      navigate('/login', { state: { from: { pathname: route || '/chat' } } });
+  }
   };
 
   const handleHistoryItemClick = (historyItem) => {
@@ -244,7 +251,6 @@ const ImageGenerator = () => {
         options={ImageGeneratorSettings.ratioOptions}
       />
 
-      {/* We need to make sure that we are entering only a link here and nothing else. make sure using Formik that it is in proper Format or empty. */}
       <FormGroup>
         <Label htmlFor="referenceLinks">Add Reference Youtube Thumbnail Link</Label>
         <Input
@@ -294,7 +300,7 @@ const ImageGenerator = () => {
         <SubSidebar
           contextName="Image Generation"
           mainContent={mainContent}
-          navigationContent={<NavigationList items={mainTools} onItemSelect={handleNavItemClick} />}
+          navigationContent={<NavigationList activeItem={activeNavItem} onSelectItem={handleNavItemClick} />}
           showHistoryToggle={true}
           historyContent={historyContent}
         />
