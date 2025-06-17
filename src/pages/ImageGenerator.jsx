@@ -45,6 +45,7 @@ const PromptFormContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 16px;
   gap: 1rem;
   height: 100%;
 `
@@ -307,7 +308,7 @@ const ImageGenerator = () => {
         
         <ContentArea>
           {isGenerating ? (
-            <LoadingView />
+            <LoadingView message="Generating your images... Please wait." />
           ) : generatedImages.length > 0 ? (
             <>
               <ImageGrid

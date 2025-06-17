@@ -177,40 +177,6 @@ const UserInfo = styled.div`
   }
 `;
 
-const UserAvatar = styled.div`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #635bff;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 0.9rem;
-`;
-
-const UserName = styled.span`
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #111;
-`;
-
-const LogoutButton = styled.button`
-  background: #f3f3f3;
-  color: #111;
-  font-size: .9rem;
-  font-weight: 500;
-  border: none;
-  border-radius: 8px;
-  padding: 0.4rem 1.1rem;
-  cursor: pointer;
-  transition: background 0.15s;
-  &:hover {
-    background: #e5e5e5;
-  }
-`;
-
 const navLinks = [
   { label: 'AI', path: '/ai' },
   { label: 'Automation', path: '/automation' },

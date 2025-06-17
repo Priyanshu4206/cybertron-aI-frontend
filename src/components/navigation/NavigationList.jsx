@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { mainTools, aiWorks } from '../../utils/dummyData';
+import { aiTools } from '../../utils/dummyData';
 
 const NavigationContainer = styled.div`
   display: flex;
@@ -38,12 +38,6 @@ const Label = styled.div`
   font-weight: 500;
 `;
 
-const Divider = styled.div`
-  height: 1px;
-  background-color: rgba(255, 255, 255, 0.1);
-  margin: 8px 0;
-`;
-
 const CategoryLabel = styled.div`
   font-size: 12px;
   color: #999;
@@ -55,7 +49,7 @@ const NavigationList = ({ activeItem, onSelectItem }) => {
     <NavigationContainer>
       <CategoryLabel>AI Tools</CategoryLabel>
 
-      {mainTools.map(item => (
+      {aiTools.map(item => (
         <NavigationItem 
           key={item.id}
           active={activeItem === item.id}
@@ -67,9 +61,6 @@ const NavigationList = ({ activeItem, onSelectItem }) => {
           <Label>{item.name}</Label>
         </NavigationItem>
       ))}
-      
-      {/* <Divider />
-      <CategoryLabel>AI Works</CategoryLabel> */}
       
         {/* {aiWorks.map(item => (
           <NavigationItem 

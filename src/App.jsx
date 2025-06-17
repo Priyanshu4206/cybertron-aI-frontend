@@ -20,7 +20,6 @@ import Explore from './pages/Explore';
 
 // Tools
 import TextGenerator from './components/tools/TextGenerator';
-import AudioGenerator from './components/tools/AudioGenerator';
 import ScriptGenerator from './pages/ScriptGenerator';
 
 // Auth Context
@@ -34,6 +33,7 @@ import Spinner from './components/common/Spinner';
 import AiChat from './pages/AiChat';
 import ImageGenerator from './pages/ImageGenerator';
 import ThumbnailGenerator from './pages/ThumbnailGenerator';
+import ContentGenerator from './pages/ContentGenerator';
 
 // Protected Route Component with loading state handling
 const ProtectedRoute = memo(({ children }) => {
@@ -137,9 +137,9 @@ function App() {
                   <ThumbnailGenerator />
                 </ProtectedRoute>
               } />
-              <Route path="/tools/audio-generator" element={
+              <Route path="/tools/content-generator" element={
                 <ProtectedRoute>
-                  <AudioGenerator />
+                  <ContentGenerator />
                 </ProtectedRoute>
               } />
 

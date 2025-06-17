@@ -100,7 +100,7 @@ export const FontSizeInput = styled.input`
 
 export const EditorWrapper = styled.div`
   flex: 1;
-  padding: 20px;
+  padding: 0 20px;
   overflow-y: auto;
   position: relative;
   

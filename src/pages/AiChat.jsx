@@ -13,6 +13,7 @@ import NavigationList from '../components/navigation/NavigationList';
 import ChatInterface from '../components/chat/ChatInterface';
 import AskBox from '../components/chat/AskBox';
 import { mainTools } from '../utils/dummyData';
+import { BiExpandAlt } from 'react-icons/bi';
 
 const HomeContainer = styled.div`
   display: ${({ isChatActive }) => isChatActive ? 'none' : 'flex'};
@@ -131,6 +132,7 @@ const ProductBy = styled.div`
 `;
 
 const ChatContent = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;  
@@ -158,12 +160,40 @@ const ContentArea = styled.div`
   height: 100%;
 `;
 
+const ExpandIcon = styled.div`
+  position: absolute;
+  top: 8px;
+  right: 24px;
+  cursor: pointer;
+  color: #000;
+  font-size: 24px;
+  transition: all 0.3s ease;
+  background-color: #000;
+  color: #fff;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+
+  .icon{
+    transition: all 0.3s ease;
+  }
+    
+  &:hover {
+    .icon{
+      transform: scale(1.1);
+    }
+  }
+`;
+
 const AiChat = () => {
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth();
-    const { isChatActive, activateChat } = useUI();
+    const { isChatActive, setIsChatActive } = useUI();
     const chatInterfaceRef = useRef(null);
-    const [activeNavItem, setActiveNavItem] = useState('text-to-image');    
+    const [activeNavItem, setActiveNavItem] = useState('text-generator');    
     
     // Handle tool click with auth check
     const handleToolClick = (route) => {
@@ -213,6 +243,10 @@ const AiChat = () => {
     }
     };
 
+    const handleExpand = () => {
+      setIsChatActive(false);
+    };
+
     return (
         <Layout title="Chat">
             <MainContainer isChatActive={isChatActive}>
@@ -232,6 +266,9 @@ const AiChat = () => {
                             onSendMessage={handleSendMessage}
                             isFixed={isChatActive}
                         />
+                        <ExpandIcon onClick={handleExpand}>
+                            <BiExpandAlt className='icon' size={24}/>
+                        </ExpandIcon>
                     </ChatContent>
                 </ContentArea>
             </MainContainer>

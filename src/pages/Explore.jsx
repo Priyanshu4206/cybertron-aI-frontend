@@ -179,7 +179,7 @@ const Explore = () => {
               {filterWorks(aiWorks, search).map((work) => (
                 <AiWorkCard
                   key={work.id}
-                  onClick={() => handleToolClick(tool.route)}
+                  onClick={() => handleToolClick(work.route)}
                   icon={work.icon}
                   title={work.name}
                   description={work.description}

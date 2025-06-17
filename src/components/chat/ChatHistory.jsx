@@ -22,7 +22,7 @@ const NewChatButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-bottom: 24px;
+  margin: 16px 16px 24px 16px;
   
   &:hover {
     border-color: #000;
@@ -44,7 +44,6 @@ const HistoryItem = styled.div`
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
-  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
   background-color: ${({ active }) => (active ? '#f0f0f0' : 'transparent')};

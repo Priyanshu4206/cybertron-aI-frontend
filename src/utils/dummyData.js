@@ -79,6 +79,14 @@ export const mainTools = [
 // AI Tools Data
 export const aiTools = [
   {
+    id: "text-generator",
+    name: "Start Chat",
+    description: "Begin an AI-powered conversation for any topic.",
+    icon: HiOutlineChatBubbleLeftRight,
+    category: "Start Chat",
+    route: "/chat",
+  },
+  {
     id: "text-to-image",
     name: "Image Generation",
     description:
@@ -87,7 +95,7 @@ export const aiTools = [
     category: "Image Generation",
     platforms: [],
     popular: true,
-    route: "tools/text-to-image",
+    route: "/tools/text-to-image",
   },
   {
     id: "video-generator",
@@ -121,24 +129,14 @@ export const aiTools = [
     route: "/tools/content-generator",
   },
   {
-    id: "document-creation",
-    name: "Document Creation",
-    description: "Create and format professional documents automatically.",
+    id: "script-writing",
+    name: "Script Writing",
+    description: "Create and format professional scripts for videos, podcasts, and presentations.",
     icon: MdBrush,
-    category: "Document Creation",
+    category: "Script Writing",
     platforms: [],
     popular: false,
-    route: "/tools/document-creation",
-  },
-  {
-    id: "ai-video-editing",
-    name: "AI Video Editing",
-    description: "Edit and enhance videos automatically using AI algorithms.",
-    icon: MdVideoCall,
-    category: "AI Video Editing",
-    platforms: [],
-    popular: false,
-    route: "/tools/ai-video-editing",
+    route: "/tools/script-writing",
   },
   {
     id: "thumbnail-creation",
@@ -150,6 +148,16 @@ export const aiTools = [
     popular: false,
     route: "/tools/thumbnail-creation",
   },
+  // {
+  //   id: "ai-video-editing",
+  //   name: "AI Video Editing",
+  //   description: "Edit and enhance videos automatically using AI algorithms.",
+  //   icon: MdVideoCall,
+  //   category: "AI Video Editing",
+  //   platforms: [],
+  //   popular: false,
+  //   route: "/tools/ai-video-editing",
+  // },
 ];
 
 // AI Works Data
@@ -493,4 +501,79 @@ export const sidebarNav = [
   { path: "/automation", icon: "FaMagic", label: "Automation" },
   { path: "/billing", icon: "FaCreditCard", label: "Billing" },
   { path: "/trending", icon: "MdOutlineTrendingUp", label: "Trending" },
+];
+
+export const dummyVideos = [
+  {
+    id: 1,
+    title: "How to EDIT Documentary Style Videos | After Effects Tutorial",
+    channel: "YesItssElemental",
+    views: "184.8K",
+    duration: "15:32",
+    percentage: "99%",
+    bgGradient: "linear-gradient(135deg, #3b82f6, #1e40af)"
+  },
+  {
+    id: 2,
+    title: "How to EDIT Documentary Style Videos | After Effects Tutorial",
+    channel: "YesItssElemental",
+    views: "184.8K",
+    duration: "22:15",
+    percentage: "99%",
+    bgGradient: "linear-gradient(135deg, #10b981, #047857)"
+  },
+  {
+    id: 3,
+    title: "How to EDIT Documentary Style Videos | After Effects Tutorial",
+    channel: "YesItssElemental",
+    views: "107K",
+    duration: "18:45",
+    percentage: "95%",
+    bgGradient: "linear-gradient(135deg, #ef4444, #dc2626)"
+  },
+  {
+    id: 4,
+    title: "How to EDIT Documentary Style Videos | After Effects Tutorial",
+    channel: "YesItssElemental",
+    views: "1003",
+    duration: "12:30",
+    percentage: "99%",
+    bgGradient: "linear-gradient(135deg, #8b5cf6, #7c3aed)"
+  },
+  {
+    id: 5,
+    title: "How to EDIT Documentary Style Videos | After Effects Tutorial",
+    channel: "YesItssElemental",
+    views: "434K",
+    duration: "20:15",
+    percentage: "98%",
+    bgGradient: "linear-gradient(135deg, #f59e0b, #d97706)"
+  },
+  {
+    id: 6,
+    title: "How to EDIT Documentary Style Videos | After Effects Tutorial",
+    channel: "YesItssElemental",
+    views: "122K",
+    duration: "14:22",
+    percentage: "97%",
+    bgGradient: "linear-gradient(135deg, #06b6d4, #0891b2)"
+  },
+  {
+    id: 7,
+    title: "How to EDIT Documentary Style Videos | After Effects Tutorial",
+    channel: "YesItssElemental",
+    views: "300K",
+    duration: "16:45",
+    percentage: "96%",
+    bgGradient: "linear-gradient(135deg, #ec4899, #db2777)"
+  },
+  {
+    id: 8,
+    title: "How to EDIT Documentary Style Videos | After Effects Tutorial",
+    channel: "YesItssElemental",
+    views: "333K",
+    duration: "19:30",
+    percentage: "98%",
+    bgGradient: "linear-gradient(135deg, #84cc16, #65a30d)"
+  }
 ];

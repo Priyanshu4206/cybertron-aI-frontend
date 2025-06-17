@@ -194,14 +194,6 @@ const ScriptEditor = ({ initialContent, onSave }) => {
     }
   };
 
-  const toggleBlockType = (blockType) => {
-    setEditorState(RichUtils.toggleBlockType(editorState, blockType));
-  };
-
-  const toggleInlineStyle = (inlineStyle) => {
-    setEditorState(RichUtils.toggleInlineStyle(editorState, inlineStyle));
-  };
-
   const handleCopyToClipboard = () => {
     const content = editorState.getCurrentContent().getPlainText();
     navigator.clipboard.writeText(content)
@@ -232,7 +224,6 @@ const ScriptEditor = ({ initialContent, onSave }) => {
       
       <EditorWrapper 
         fontSize={`${fontSize}px`} 
-        fontFamily={fontFamily}
       >
         <Editor
           ref={editor}

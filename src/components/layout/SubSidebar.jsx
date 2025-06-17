@@ -105,7 +105,7 @@ const ToggleButton = styled.button`
 const ContentContainer = styled.div`
   opacity: ${({ isOpen }) => (isOpen ? '1' : '0')};
   transition: opacity 0.3s ease;
-  padding: ${({ isOpen }) => (isOpen ? '16px' : '0')};
+  padding: 0;
   overflow-y: auto;
   overflow-x: hidden;
   height: calc(100vh - 128px);

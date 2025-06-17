@@ -6,7 +6,6 @@ import PromptForm from '../components/scriptGenerator/PromptForm';
 import ScriptEditor from '../components/scriptGenerator/ScriptEditor';
 import ScriptHistory from '../components/scriptGenerator/ScriptHistory';
 import { sampleScriptContent, scriptHistory } from '../utils/scriptGeneratorData';
-import { FaKeyboard } from 'react-icons/fa';
 import NavigationList from '../components/navigation/NavigationList';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -87,36 +86,10 @@ const EmptyStateText = styled.p`
   margin: 0;
 `;
 
-const ShortcutTooltip = styled.div`
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: #333;
-  max-width: 300px;
-`;
-
-const KeyboardIcon = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  color: #666;
-`;
-
 const ScriptGenerator = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();  
-  const [activeNavItem, setActiveNavItem] = useState('new-script');
+  const [activeNavItem, setActiveNavItem] = useState('script-writing');
   const [activeScriptId, setActiveScriptId] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedScript, setGeneratedScript] = useState('');
