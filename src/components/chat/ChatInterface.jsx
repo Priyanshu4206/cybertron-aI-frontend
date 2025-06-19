@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import styled from 'styled-components';
 import { useUI } from '../../context/UIContext';
+import { useAuth } from '../../context/AuthContext';
+import chatService from '../../utils/chatService';
 
 // Components
 import ChatMessage from './ChatMessage';
@@ -8,18 +10,20 @@ import ChatMessage from './ChatMessage';
 const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 226px); /* Adjust for header and input area */
+  height: calc(100vh - 182px); /* Adjust for header and input area */
   background-color: #fff;
   opacity: ${({ isChatActive }) => isChatActive ? 1 : 0};
   transition: opacity 0.3s ease;
   overflow: hidden;
+  width: 100%;
 `;
 
 const MessagesContainer = styled.div`
   flex: 1;
   overflow-y: auto;
-  padding: 24px;
   scroll-behavior: smooth;
+  padding-bottom: 4rem;
+  width: 100%;
 `;
 
 const WelcomeContainer = styled.div`
@@ -44,30 +48,111 @@ const WelcomeText = styled.p`
   line-height: 1.6;
 `;
 
+const ErrorMessage = styled.div`
+  color: #e53e3e;
+  background-color: #fee2e2;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 12px 0;
+  text-align: center;
+`;
+
 const ChatInterface = forwardRef((props, ref) => {
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [error, setError] = useState('');
+  const [currentConversationId, setCurrentConversationId] = useState(null);
+  const [conversations, setConversations] = useState([]);
+  const [isLoadingConversation, setIsLoadingConversation] = useState(false);
+
   const messagesEndRef = useRef(null);
   const { isChatActive } = useUI();
-  
+  const { isAuthenticated } = useAuth();
+
   // Expose methods to parent component
   useImperativeHandle(ref, () => ({
     handleSendMessage,
     resetChat: () => {
       setMessages([]);
       setIsTyping(false);
+      setCurrentConversationId(null);
+      setError('');
+    },
+    loadChatById: (conversationId) => {
+      loadConversation(conversationId);
     }
   }));
-  
+
+  // Fetch conversations on mount if authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchConversations();
+    }
+  }, [isAuthenticated]);
+
   // Scroll to bottom when messages change
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
-  
-  const handleSendMessage = (messageData) => {
-    // Add user message
+
+  // Load conversations from API
+  const fetchConversations = async () => {
+    if (!isAuthenticated) return;
+
+    try {
+      setIsLoadingConversation(true);
+      const result = await chatService.getConversations();
+
+      if (result.success) {
+        setConversations(result.data.myConversations || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch conversations:', error);
+    } finally {
+      setIsLoadingConversation(false);
+    }
+  };
+
+  // Load a specific conversation
+  const loadConversation = async (conversationId) => {
+    if (!conversationId || !isAuthenticated) return;
+
+    try {
+      setIsLoadingConversation(true);
+      const result = await chatService.getConversationById(conversationId);
+
+      if (result.success && result.data.conversationById) {
+        const conversation = result.data.conversationById;
+
+        // Format messages for display
+        const formattedMessages = conversation.messages.map((msg, index) => ({
+          id: `${conversationId}-${index}`,
+          text: msg.content,
+          isAI: msg.role === 'assistant',
+          timestamp: new Date(msg.timestamp)
+        }));
+
+        // Set the current conversation
+        setCurrentConversationId(conversationId);
+        setMessages(formattedMessages);
+      } else {
+        setError('Failed to load conversation. It may have been deleted or is unavailable.');
+      }
+    } catch (error) {
+      setError('Failed to load conversation. Please try again.');
+      console.error('Failed to load conversation:', error);
+    } finally {
+      setIsLoadingConversation(false);
+    }
+  };
+
+  const handleSendMessage = async (messageData) => {
+    // Reset error state
+    setError('');
+
+    // Add user message to chat
     const userMessage = {
       id: Date.now(),
       text: messageData.text,
@@ -75,44 +160,97 @@ const ChatInterface = forwardRef((props, ref) => {
       isAI: false,
       timestamp: new Date()
     };
-    
+
     setMessages(prev => [...prev, userMessage]);
-    
-    // Simulate AI response
     setIsTyping(true);
-    
-    // Mock API delay
-    setTimeout(() => {
-      const aiResponse = {
-        id: Date.now() + 1,
-        text: getAIResponse(messageData.text, messageData.mode),
-        isAI: true,
-        timestamp: new Date()
-      };
-      
+
+    try {
+      if (isAuthenticated) {
+        // Prepare input for the API
+        const input = {
+          message: messageData.text,
+          settings: {
+            temperature: messageData.mode === 'search' ? 0.3 : 0.7
+          }
+        };
+
+        // If continuing a conversation, add the conversation ID
+        if (currentConversationId) {
+          input.conversationId = currentConversationId;
+        } else if (messages.length === 0) {
+          // If this is a new conversation, add a title
+          input.title = messageData.text.substring(0, 50) + (messageData.text.length > 50 ? '...' : '');
+        }
+
+        // Send message to API
+        const response = await chatService.sendMessage(input);
+
+        if (response.success) {
+          const conversation = response.data.sendMessage.conversation;
+          const lastMessage = response.data.sendMessage.lastMessage;
+
+          // Format AI response
+          const aiResponse = {
+            id: Date.now() + 1,
+            text: lastMessage.content,
+            isAI: true,
+            timestamp: new Date(lastMessage.timestamp),
+            tokensConsumed: response.data.sendMessage.tokensConsumed
+          };
+
+          setCurrentConversationId(conversation.id);
+          setIsTyping(false);
+          setMessages(prev => [...prev, aiResponse]);
+
+          // Refresh conversations list
+          fetchConversations();
+        } else {
+          setError(response.error || 'Failed to generate response. Please try again.');
+          setIsTyping(false);
+        }
+      } else {
+        // Use mock response for non-authenticated users
+        setTimeout(() => {
+          const mockResponse = getMockResponse(messageData.text, messageData.mode);
+
+          const aiResponse = {
+            id: Date.now() + 1,
+            text: mockResponse,
+            isAI: true,
+            timestamp: new Date()
+          };
+
+          setIsTyping(false);
+          setMessages(prev => [...prev, aiResponse]);
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Message sending error:', error);
+      setError('Failed to send message. Please try again.');
       setIsTyping(false);
-      setMessages(prev => [...prev, aiResponse]);
-    }, 2000);
+    }
   };
-  
-  // Mock AI response based on mode
-  const getAIResponse = (text, mode) => {
+
+  // Mock AI response for non-authenticated users
+  const getMockResponse = (text, mode) => {
     if (mode === 'search') {
       return `I searched the web for information about "${text}" and found these results:\n\n1. According to recent studies, this topic has gained significant attention in the field.\n\n2. Experts suggest that understanding the points system is crucial for success in fantasy sports.\n\n3. The most effective strategy involves analyzing historical data and current trends.`;
     } else {
       return `Based on my knowledge, here are some thoughts about "${text}":\n\n- Fantasy sports typically use point systems that reward player performance in real-world games.\n- Different leagues may have different scoring rules, but they generally award points for achievements like goals, assists, or yards gained.\n- Understanding the specific point system for your fantasy league is essential for drafting players and making weekly lineup decisions.\n- Some systems are category-based while others use a points-based approach.`;
     }
   };
-  
+
   return (
     <ChatContainer isChatActive={isChatActive}>
-      <MessagesContainer>
+      <MessagesContainer className="scrollable-content">
+        {error && <ErrorMessage>{error}</ErrorMessage>}
+
         {messages.length === 0 ? (
           <WelcomeContainer>
             <WelcomeTitle>Welcome to Cybertron.ai Chat</WelcomeTitle>
             <WelcomeText>
               Ask anything and get intelligent answers. You can search the web for real-time information
-              or use the "Think" mode for AI-generated responses based on its knowledge.
+              or get detailed explanations based on my knowledge.
             </WelcomeText>
           </WelcomeContainer>
         ) : (
@@ -125,14 +263,14 @@ const ChatInterface = forwardRef((props, ref) => {
             />
           ))
         )}
-        
+
         {isTyping && (
           <ChatMessage
             isAI={true}
             isThinking={true}
           />
         )}
-        
+
         <div ref={messagesEndRef} />
       </MessagesContainer>
     </ChatContainer>

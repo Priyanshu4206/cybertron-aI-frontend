@@ -1,35 +1,31 @@
-# Cybertron.AI - AI-Powered Creator Hub
+# Cybertron.AI
 
-A modern frontend for an AI-powered creator platform, built with React.js and styled-components.
-
-## Project Overview
-
-Cybertron.AI is a frontend MVP for an AI-powered creator platform that provides users with various AI tools for content creation, image generation, code assistance, and more. This version is a purely frontend simulation with dummy data, focusing on a seamless, interactive user journey.
+Cybertron.AI is a powerful AI studio platform that provides tools for text generation, image generation, script generation, and more.
 
 ## Features
 
-- User authentication (signup, login, OTP verification)
-- Onboarding flow
-- Account type selection
-- Subscription plan selection
-- AI tools exploration
-- Tool interfaces for text, image, code, and audio generation
-- Persistent auth routing
+- Authentication with Email/Password and Google
+- OTP verification for secure login
+- Text generation with AI
+- Chat history functionality
+- Modern responsive UI
 
-## Tech Stack
+## Technology Stack
 
-- React.js
-- Vite
+- React 19
+- React Router 6
 - Styled Components
-- React Router DOM
-- Formik + Yup (form handling and validation)
+- Firebase Authentication
+- GraphQL API integration with Apollo Client
+- Formik + Yup for form validation
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js (v14+)
-- npm or yarn
+- Node.js 16+ and npm
+- Firebase project (for authentication)
+- GraphQL backend service running at http://localhost:4000/graphql (or custom URL)
 
 ### Installation
 
@@ -44,43 +40,72 @@ cd cybertron.ai
 npm install
 ```
 
-3. Start the development server
+3. Create a `.env` file in the root directory with the following variables:
+```
+# API URL
+VITE_API_URL=http://localhost:4000/graphql
+
+# Firebase config
+VITE_FIREBASE_API_KEY=your-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-auth-domain.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-storage-bucket.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
+VITE_FIREBASE_APP_ID=your-app-id
+```
+
+4. Start the development server
 ```bash
 npm run dev
 ```
 
-4. Open your browser and navigate to `http://localhost:5173`
+## Authentication Flow
+
+The application supports multiple authentication methods:
+
+1. **Email/Password Registration and Login**
+   - User registers with email/password
+   - OTP verification is sent to email
+   - User verifies OTP to complete registration
+   - For login, user enters email/password, then verifies with OTP
+
+2. **Google Authentication**
+   - User signs in with Google
+   - If new user, they are redirected to complete onboarding
+   - If existing user, they are logged in directly
+
+## API Integration
+
+The application uses a GraphQL API for:
+
+- User authentication and management
+- Text generation requests
+- Chat history storage and retrieval
+
+See the Postman collection for available API endpoints and their usage.
 
 ## Project Structure
 
 ```
-src/
-├── components/
-│   ├── auth/         # Authentication components
-│   ├── common/       # Reusable UI components
-│   ├── layout/       # Layout components
-│   ├── onboarding/   # Onboarding components
-│   └── tools/        # AI tool components
-├── context/         # React context providers
-├── hooks/           # Custom React hooks
-├── pages/           # Page components
-├── styles/          # Global styles and theme
-└── utils/           # Utility functions and dummy data
+cybertron.ai/
+├── public/          # Static files
+├── src/
+│   ├── assets/      # Images, fonts, etc.
+│   ├── components/  # Reusable components
+│   ├── context/     # React context providers
+│   ├── hooks/       # Custom React hooks
+│   ├── pages/       # Page components
+│   ├── utils/       # Utilities and services
+│   ├── styles/      # Global styles
+│   ├── App.jsx      # Main application component
+│   └── main.jsx     # Entry point
+├── .env.example     # Example environment variables
+├── package.json     # Project dependencies
+└── vite.config.js   # Vite configuration
 ```
-
-## User Flow
-
-1. User signs up or logs in
-2. New users go through onboarding process
-3. User selects account type
-4. User chooses a subscription plan
-5. User is directed to the explore page
-6. User can browse and use various AI tools
-
-## Development Notes
-
-This is a frontend-only MVP with simulated functionality. All data is stored locally and API calls are mocked with timeouts to simulate network requests.
 
 ## License
 
-[MIT](LICENSE)
+This project is proprietary and confidential. Unauthorized copying, modification, distribution, or use is strictly prohibited.
+
+Copyright © 2024 ZooQ Inc. All rights reserved.

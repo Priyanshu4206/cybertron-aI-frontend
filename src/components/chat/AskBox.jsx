@@ -1,20 +1,23 @@
 import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
-import { MdCreateNewFolder, MdHearing, MdOutlineKeyboardArrowDown } from 'react-icons/md';
 import { BiGlobe } from 'react-icons/bi';
-import { CgAttachment } from 'react-icons/cg';
 import { IoIosSend } from 'react-icons/io';
 import { useUI } from '../../context/UIContext';
+
+// Future Update - Icons
+// import { MdCreateNewFolder, MdHearing, MdOutlineKeyboardArrowDown } from 'react-icons/md';
+// import { CgAttachment } from 'react-icons/cg';
 
 const AskBoxContainer = styled.div`
   background: #fff;
   border-radius: 20px;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
-  padding: 2rem 2.5rem 1.5rem 2.5rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 16px 24px;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1000px;
   display: flex;
   flex-direction: column;
+  gap: 10px;
   align-items: center;
   transition: all 0.5s ease;
   margin: 0 auto;
@@ -33,7 +36,7 @@ const AskBoxContainer = styled.div`
   `}
 
   @media (max-width: 768px) {
-    padding: 1.5rem 1rem 1rem 1rem;
+    padding: 0.75rem;
   }
 `;
 
@@ -48,8 +51,8 @@ const AskInput = styled.input`
   flex: 1;
   border: none;
   background: transparent;
-  font-size: 1.2rem;
-  padding: 0.5rem 0;
+  font-size: 1rem;
+  padding: 0.5rem 0.5rem;
   outline: none;
   color: #333;
   
@@ -61,9 +64,11 @@ const AskInput = styled.input`
 const AskButton = styled.button`
   background: transparent;
   border: none;
-  font-size: 1.5rem;
+  font-size: 1rem;
   color: #999;
   cursor: pointer;
+  margin-left: auto;
+  padding:0;
 
   span {
     display: flex;
@@ -71,15 +76,12 @@ const AskButton = styled.button`
     align-items: center;
     border-radius: 100%;
     border: 1px solid #6666;
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     color: #666;
     transition: all 0.2s;
-
-    &:hover {
-        background: #000;
-        color: white;
-    }
+    background: ${props => props.inputValue ? '#000' : 'transparent'};
+    color: ${props => props.inputValue ? '#fff' : '#999'};
   }
 `;
 
@@ -88,7 +90,6 @@ const AskActions = styled.div`
   align-items: center;
   width: 100%;
   gap: 1rem;
-  margin-top: 1rem;
   flex-wrap: wrap;
 
   @media (max-width: 768px) {
@@ -101,7 +102,7 @@ const ActionButton = styled.button`
   color: ${props => props.active ? '#fff' : '#000'};
   border: none;
   border-radius: 25px;
-  padding: 0.4rem 1rem;
+  padding: 0.5rem 1rem;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
@@ -115,59 +116,61 @@ const ActionButton = styled.button`
   }
 `;
 
-const IconsWrapper = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-right: 1rem;
+// Future Update
 
-  @media (max-width: 768px) {
-    gap: 0.5rem;
-    margin-right: 0.5rem;
-  }
-`;
+// const IconsWrapper = styled.div`
+//   display: flex;
+//   gap: 1rem;
+//   margin-right: 1rem;
 
-const Logo = styled.img`
-  width: ${({ width }) => width ? width : "24px"};
-`;
+//   @media (max-width: 768px) {
+//     gap: 0.5rem;
+//     margin-right: 0.5rem;
+//   }
+// `;
+
+// const Logo = styled.img`
+//   width: ${({ width }) => width ? width : "24px"};
+// `;
 
 const AskBox = ({ onSendMessage, isFixed = false }) => {
   const { isChatActive, activateChat } = useUI();
   const [inputValue, setInputValue] = useState('');
   const [mode, setMode] = useState('search'); // 'search' or 'think'
   const inputRef = useRef(null);
-  
+
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
   };
-  
+
   const handleModeChange = (newMode) => {
     setMode(newMode);
   };
-  
+
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
-    
+
     // Activate chat interface if not already active
     if (!isChatActive) {
       activateChat();
     }
-    
+
     // Create message object
     const message = {
       text: inputValue,
       mode,
       attachments: []
     };
-    
+
     // Pass message to parent
     if (onSendMessage) {
       onSendMessage(message);
     }
-    
+
     // Clear input
     setInputValue('');
   };
-  
+
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleSendMessage();
@@ -177,38 +180,44 @@ const AskBox = ({ onSendMessage, isFixed = false }) => {
   return (
     <AskBoxContainer isChatActive={isChatActive} isFixed={isFixed}>
       <AskInputRow>
-        <AskInput 
-          placeholder="Ask Anything" 
+        <AskInput
+          placeholder="Ask Anything"
           value={inputValue}
           onChange={handleInputChange}
           onKeyPress={handleKeyPress}
           ref={inputRef}
         />
-        <AskButton onClick={handleSendMessage}>
-          <span><IoIosSend size={32} /></span>
-        </AskButton>
       </AskInputRow>
       <AskActions>
+        {/* Future Update - Icons */}
+        {/*
         <IconsWrapper>
           <CgAttachment size={28} color='#000' />
           <MdCreateNewFolder size={28} color='#000' />
-        </IconsWrapper>
-        <ActionButton 
-          active={mode === 'search'} 
+        </IconsWrapper> 
+        */}
+        <ActionButton
+          active={mode === 'search'}
           onClick={() => handleModeChange('search')}
         >
           <BiGlobe size={24} /> Search
         </ActionButton>
-        <ActionButton 
-          active={mode === 'think'} 
+        {/* Future Update - Think Mode */}
+        {/*         
+        <ActionButton
+          active={mode === 'think'}
           onClick={() => handleModeChange('think')}
         >
           <MdHearing size={24} /> Think
         </ActionButton>
         <ActionButton>
-          <Logo src='/logo/logo-black-no-bg.png' width={"24px"} /> 
+          <Logo src='/logo/logo-black-no-bg.png' width={"24px"} />
           GPT-04 <MdOutlineKeyboardArrowDown />
-        </ActionButton>
+        </ActionButton> 
+        */}
+        <AskButton onClick={handleSendMessage} inputValue={inputValue}>
+          <span><IoIosSend size={24} /></span>
+        </AskButton>
       </AskActions>
     </AskBoxContainer>
   );

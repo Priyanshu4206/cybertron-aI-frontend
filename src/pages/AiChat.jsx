@@ -18,11 +18,16 @@ import { BiExpandAlt } from 'react-icons/bi';
 const HomeContainer = styled.div`
   display: ${({ isChatActive }) => isChatActive ? 'none' : 'flex'};
   flex-direction: column;
+  justify-content: center;
   align-items: center;
   width: 100%;
   position: relative;
   min-height: ${({ isChatActive }) => isChatActive ? 'calc(100vh - 64px)' : 'auto'};
   padding: ${({ isChatActive }) => isChatActive ? '0' : '1.5rem'};
+
+  @media screen and (max-width: 450px){
+    padding: ${({ isChatActive }) => isChatActive ? '0' : '1rem'};
+  }  
 `;
 
 const FlexRow = styled.div`
@@ -37,17 +42,26 @@ const FlexRow = styled.div`
 `;
 
 const Logo = styled.img`
-  width: ${({ width }) => width ? width : "120px"};
+  width: 100px;
+
+  @media screen and (max-width: 450px){
+    width: 70px;
+  }
 `;
 
 const Title = styled.h1`
-  font-size: 4rem;
-  font-weight: bold;
+  font-size: 3rem;
+  font-weight: 500;
   color: #000;
 
   @media (max-width: 768px) {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
+  
+  @media screen and (max-width: 450px){
+    font-size: 1.5rem;
+  }
+
 `;
 
 const ToolGrid = styled.div`
@@ -57,7 +71,7 @@ const ToolGrid = styled.div`
   padding: 1rem;
   margin: 2rem 0 1.5rem 0;
   width: 100%;
-  max-width: 1024px;
+  max-width: 900px;
   transition: all 0.5s ease;
   overflow: hidden;
   opacity: ${({ isChatActive }) => isChatActive ? 0 : 1};
@@ -65,16 +79,15 @@ const ToolGrid = styled.div`
 `;
 
 const ToolCard = styled.div`
-  background: #EDECF1ff;
+  background: #eeee;
   border-radius: 8px;
-  padding: 1rem 1rem;
+  padding: 0.75rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   font-size: 1rem;
-  font-weight: 600;
-  border: 2px solid #000;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+  font-weight: 500;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
   cursor: pointer;
   min-width: 180px;
   transition: transform 0.15s;
@@ -87,19 +100,19 @@ const ToolCard = styled.div`
 `;
 
 const ToolIcon = styled.div`
-  font-size: 2rem;
+  font-size: 1.2rem;
   color: #000;
 `;
 
 const ViewAllBtn = styled.button`
   display: ${({ isChatActive }) => isChatActive ? 'none' : 'block'};
-  background: #111;
+  background: #000;
   color: #fff;
   border: none;
   border-radius: 8px;
   padding: 1rem 0;
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 500;
   width: 350px;
   margin: 0 auto;
   cursor: pointer;
@@ -135,6 +148,7 @@ const ChatContent = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   width: 100%;  
   height: 100%;
   opacity: ${({ isChatActive }) => isChatActive ? 1 : 0};
@@ -145,11 +159,13 @@ const ChatContent = styled.div`
 const MainContainer = styled.div`
   display: ${({ isChatActive }) => isChatActive ? 'flex' : 'none'};
   width: 100%;
-  height: 100%;  
+  height: 100%;
+  position: relative;
 `;
 
 const SidebarContainer = styled.div`
   height: 100%;
+  z-index: 1001;
 `;
 
 const ContentArea = styled.div`
@@ -158,12 +174,14 @@ const ContentArea = styled.div`
   flex-direction: column;
   overflow: hidden;
   height: 100%;
+  position: relative;
+  z-index: 1000;
 `;
 
 const ExpandIcon = styled.div`
   position: absolute;
   top: 8px;
-  right: 24px;
+  right: 10px;
   cursor: pointer;
   color: #000;
   font-size: 24px;
@@ -188,127 +206,173 @@ const ExpandIcon = styled.div`
   }
 `;
 
+const MobileOverlay = styled.div`
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  display: ${({ isVisible }) => isVisible ? 'block' : 'none'};
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+`;
+
 const AiChat = () => {
-    const navigate = useNavigate();
-    const { isAuthenticated } = useAuth();
-    const { isChatActive, setIsChatActive } = useUI();
-    const chatInterfaceRef = useRef(null);
-    const [activeNavItem, setActiveNavItem] = useState('text-generator');    
-    
-    // Handle tool click with auth check
-    const handleToolClick = (route) => {
-        if (isAuthenticated) {
-            if (route) {
-                navigate(route);
-            }
-        } else {
-            navigate('/login', { state: { from: { pathname: route || '/chat' } } });
-        }
-    };
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const { isChatActive, setIsChatActive, isSubSidebarOpen, isMobileView, toggleSubSidebar } = useUI();
+  const chatInterfaceRef = useRef(null);
+  const [activeNavItem, setActiveNavItem] = useState('text-generator');
+  const [activeConversationId, setActiveConversationId] = useState(null);
 
-    // View All handler with auth check
-    const handleViewAll = () => {
-        if (isAuthenticated) {
-            navigate('/explore');
-        } else {
-            navigate('/login', { state: { from: { pathname: '/explore' } } });
-        }
-    };
-    
-    // Handle send message
-    const handleSendMessage = (message) => {
-        if (chatInterfaceRef.current) {
-            chatInterfaceRef.current.handleSendMessage(message);
-        }
-    };
-    
-    // Handle new chat
-    const handleNewChat = () => {
-        if (chatInterfaceRef.current) {
-            chatInterfaceRef.current.resetChat();
-            // window.location.reload();
-        }
-    };
-
-    // Navigation functions
-    const handleNavItemClick = (itemId, route) => {
-      setActiveNavItem(itemId);
-      // Add navigation logic here
-      if (isAuthenticated) {
-        if (route) {
-            navigate(route);
-        }
+  // Handle tool click with auth check
+  const handleToolClick = (route) => {
+    if (isAuthenticated) {
+      if (route) {
+        navigate(route);
+      }
     } else {
-        navigate('/login', { state: { from: { pathname: route || '/chat' } } });
+      navigate('/login', { state: { from: { pathname: route || '/chat' } } });
     }
-    };
+  };
 
-    const handleExpand = () => {
-      setIsChatActive(false);
-    };
+  // View All handler with auth check
+  const handleViewAll = () => {
+    if (isAuthenticated) {
+      navigate('/explore');
+    } else {
+      navigate('/login', { state: { from: { pathname: '/explore' } } });
+    }
+  };
 
-    return (
-        <Layout title="Chat">
-            <MainContainer isChatActive={isChatActive}>
-                <SidebarContainer>
-                    <SubSidebar
-                        contextName="Chat with AI"
-                        mainContent={<ChatHistory onNewChat={handleNewChat} />}
-                        navigationContent={<NavigationList activeItem={activeNavItem} onSelectItem={handleNavItemClick} />}
-                        showHistoryToggle={false}
-                    />
-                </SidebarContainer>
-                
-                <ContentArea>
-                    <ChatContent isChatActive={isChatActive}>
-                        <ChatInterface ref={chatInterfaceRef} />
-                        <AskBox 
-                            onSendMessage={handleSendMessage}
-                            isFixed={isChatActive}
-                        />
-                        <ExpandIcon onClick={handleExpand}>
-                            <BiExpandAlt className='icon' size={24}/>
-                        </ExpandIcon>
-                    </ChatContent>
-                </ContentArea>
-            </MainContainer>
-            <HomeContainer isChatActive={isChatActive}>
-                <FlexRow isChatActive={isChatActive}>
-                    <Logo src="/logo/logo-black-no-bg.png" alt="Cybertron.ai logo" />
-                    <Title>Cybertron.ai</Title>
-                </FlexRow>
-                
-                <AskBox 
-                    onSendMessage={handleSendMessage}
-                    isFixed={false}
-                />
-                
-                <ToolGrid isChatActive={isChatActive}>
-                    {mainTools.map((tool, idx) => (
-                        <ToolCard
-                            key={`${tool.name}-${idx}`}
-                            color={tool.color}
-                            onClick={() => handleToolClick(tool.route)}
-                        >
-                            <ToolIcon>{createElement(tool.icon)}</ToolIcon>
-                            {tool.name}
-                        </ToolCard>
-                    ))}
-                </ToolGrid>
-                
-                <ViewAllBtn 
-                    onClick={handleViewAll}
-                    isChatActive={isChatActive}
-                >
-                    {isAuthenticated ? 'View all' : 'Login to view all'}
-                </ViewAllBtn>
-                
-                <ProductBy isChatActive={isChatActive}>
-                    product by <strong>ZooQ inc.</strong>
-                </ProductBy>
-            </HomeContainer>
-        </Layout>
-    );
+  // Handle send message
+  const handleSendMessage = (message) => {
+    if (chatInterfaceRef.current) {
+      chatInterfaceRef.current.handleSendMessage(message);
+      setIsChatActive(true); // Show chat interface when sending message
+    }
+  };
+
+  // Handle new chat
+  const handleNewChat = () => {
+    if (chatInterfaceRef.current) {
+      chatInterfaceRef.current.resetChat();
+      setActiveConversationId(null);
+    }
+  };
+
+  // Handle conversation item click
+  const handleConversationClick = (conversationId) => {
+    if (chatInterfaceRef.current && conversationId) {
+      chatInterfaceRef.current.loadChatById(conversationId);
+      setActiveConversationId(conversationId);
+      setIsChatActive(true); // Show chat interface when selecting conversation
+    }
+  };
+
+  // Navigation functions
+  const handleNavItemClick = (itemId, route) => {
+    setActiveNavItem(itemId);
+    // Add navigation logic here
+    if (isAuthenticated) {
+      if (route) {
+        navigate(route);
+      }
+    } else {
+      navigate('/login', { state: { from: { pathname: route || '/chat' } } });
+    }
+  };
+
+  const handleExpand = () => {
+    setIsChatActive(false);
+  };
+
+  // Handler to close sidebar when overlay is clicked
+  const handleOverlayClick = (e) => {
+    // Stop propagation to prevent other click handlers from firing
+    e.stopPropagation();
+    if (isSubSidebarOpen && isMobileView) {
+      toggleSubSidebar();
+    }
+  };
+
+  return (
+    <Layout title="Chat">
+      {isMobileView && isSubSidebarOpen && (
+        <MobileOverlay
+          isVisible={true}
+          onClick={handleOverlayClick}
+          data-testid="mobile-overlay"
+        />
+      )}
+      <MainContainer isChatActive={isChatActive}>
+        <SidebarContainer>
+          <SubSidebar
+            contextName="Chat with AI"
+            mainContent={
+              <ChatHistory
+                onNewChat={handleNewChat}
+                activeChatId={activeConversationId}
+                onHistoryItemClick={handleConversationClick}
+              />
+            }
+            navigationContent={<NavigationList activeItem={activeNavItem} onSelectItem={handleNavItemClick} />}
+            showHistoryToggle={false}
+          />
+        </SidebarContainer>
+
+        <ContentArea>
+          <ChatContent isChatActive={isChatActive}>
+            <ChatInterface ref={chatInterfaceRef} />
+            <AskBox
+              onSendMessage={handleSendMessage}
+              isFixed={isChatActive}
+            />
+            <ExpandIcon onClick={handleExpand}>
+              <BiExpandAlt className='icon' size={24} />
+            </ExpandIcon>
+          </ChatContent>
+        </ContentArea>
+      </MainContainer>
+      <HomeContainer isChatActive={isChatActive}>
+        <FlexRow isChatActive={isChatActive}>
+          <Logo src="/logo/logo-black-no-bg.png" alt="Cybertron.ai logo" />
+          <Title>Cybertron.ai</Title>
+        </FlexRow>
+
+        <AskBox
+          onSendMessage={handleSendMessage}
+          isFixed={false}
+        />
+
+        <ToolGrid isChatActive={isChatActive}>
+          {mainTools.map((tool, idx) => (
+            <ToolCard
+              key={`${tool.name}-${idx}`}
+              color={tool.color}
+              onClick={() => handleToolClick(tool.route)}
+            >
+              <ToolIcon>{createElement(tool.icon)}</ToolIcon>
+              {tool.name}
+            </ToolCard>
+          ))}
+        </ToolGrid>
+
+        <ViewAllBtn
+          onClick={handleViewAll}
+          isChatActive={isChatActive}
+        >
+          {isAuthenticated ? 'View all' : 'Login to view all'}
+        </ViewAllBtn>
+
+        <ProductBy isChatActive={isChatActive}>
+          product by <strong>ZooQ inc.</strong>
+        </ProductBy>
+      </HomeContainer>
+    </Layout>
+  );
 };
 
 export default AiChat;

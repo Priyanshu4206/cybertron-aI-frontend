@@ -17,6 +17,7 @@
     "draft-js-export-html": "^1.4.1",
     "draft-js-import-html": "^1.4.1",
     "draft-js-import-markdown": "^1.4.1",
+    "firebase": "^10.8.0",
     "formik": "^2.4.6",
     "framer-motion": "^12.17.3",
     "html2pdf.js": "^0.10.3",

@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { MdContentCopy, MdEdit, MdThumbUp, MdThumbDown } from 'react-icons/md';
+import { MdContentCopy, MdCheck } from 'react-icons/md';
 
 const MessageContainer = styled.div`
   display: flex;
-  padding: 24px 0;
+  padding: 16px;
   border-bottom: 1px solid #eaeaea;
   animation: fadeIn 0.3s ease;
+  width: 100%;
+
+  @media (max-width: 768px) {
+    padding: 12px;
+  }
 
   @keyframes fadeIn {
     from {
@@ -38,39 +43,58 @@ const Avatar = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: ${({ isAI }) => (isAI ? '16px' : '0')};
-  margin-left: ${({ isAI }) => (isAI ? '0' : '16px')};
+  margin: 0 10px;
   flex-shrink: 0;
   color: #fff;
   font-weight: 600;
+
+  @media (max-width: 768px) {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+    margin: 0 8px;
+  }
 `;
 
 const MessageContent = styled.div`
   flex: 1;
-  max-width: 70%;
+  max-width: ${({ isUser }) => isUser ? '80%' : '90%'};
   ${({ isUser }) => isUser && `
     display: flex;
     flex-direction: column;
     align-items: flex-end;
   `}
+
+  @media (max-width: 768px) {
+    max-width: ${({ isUser }) => isUser ? '85%' : '90%'};
+  }
 `;
 
 const MessageText = styled.div`
-  font-size: 1rem;
+  font-size: 0.9rem;
   line-height: 1.6;
   color: #333;
   white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+
   ${({ isUser }) => isUser && `
     background-color: #6b57ff;
     color: white;
     padding: 12px 16px;
     border-radius: 18px 18px 4px 18px;
     max-width: 100%;
-    word-wrap: break-word;
   `}
   ${({ isAI }) => isAI && `
     background-color: transparent;
   `}
+
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+    ${({ isUser }) => isUser && `
+      padding: 10px 14px;
+    `}
+  }
 `;
 
 const ThinkingIndicator = styled.div`
@@ -108,15 +132,13 @@ const ThinkingIndicator = styled.div`
 const MessageActions = styled.div`
   display: flex;
   gap: 16px;
-  margin-top: 16px;
-  opacity: 0;
-  transition: opacity 0.2s ease;
+  margin-top: 10px;
   ${({ isUser }) => isUser && `
     justify-content: flex-end;
   `}
   
-  ${MessageContainer}:hover & {
-    opacity: 1;
+  @media (max-width: 768px) {
+    margin-top: 8px;
   }
 `;
 
@@ -137,6 +159,21 @@ const ActionButton = styled.button`
     background-color: #f0f0f0;
     color: #000;
   }
+  
+  @media (max-width: 768px) {
+    padding: 6px;
+    font-size: 0;  /* Hide text on mobile */
+  }
+
+  svg {
+    @media (max-width: 768px) {
+      font-size: 1.2rem;
+    }
+  }
+
+  &.copied {
+    color: #2a9d8f;
+  }
 `;
 
 const FileAttachment = styled.div`
@@ -151,6 +188,11 @@ const FileAttachment = styled.div`
   ${({ isUser }) => isUser && `
     align-self: flex-end;
   `}
+  
+  @media (max-width: 768px) {
+    padding: 6px 10px;
+    margin-top: 8px;
+  }
 `;
 
 const FileIcon = styled.div`
@@ -161,28 +203,47 @@ const FileIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  
+  @media (max-width: 768px) {
+    width: 28px;
+    height: 28px;
+  }
 `;
 
 const FileName = styled.span`
   font-size: 0.9rem;
   color: #333;
+  
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+  }
 `;
 
-const ChatMessage = ({ 
-  message, 
-  isAI = false, 
+const ChatMessage = ({
+  message,
+  isAI = false,
   isThinking = false,
   attachments = []
 }) => {
+  const [copied, setCopied] = useState(false);
   const MessageWrapper = isAI ? AIMessageContainer : UserMessageContainer;
   const isUser = !isAI;
-  
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(message)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(err => console.error('Failed to copy text: ', err));
+  };
+
   return (
     <MessageWrapper>
       <Avatar isAI={isAI}>
         {isAI ? 'AI' : 'U'}
       </Avatar>
-      
+
       <MessageContent isUser={isUser}>
         {isThinking ? (
           <ThinkingIndicator>
@@ -193,36 +254,22 @@ const ChatMessage = ({
         ) : (
           <>
             <MessageText isUser={isUser} isAI={isAI}>{message}</MessageText>
-            
+
             {attachments.length > 0 && attachments.map((file, index) => (
               <FileAttachment key={index} isUser={isUser}>
                 <FileIcon>{file.icon || '📄'}</FileIcon>
                 <FileName>{file.name}</FileName>
               </FileAttachment>
             ))}
-            
-            <MessageActions isUser={isUser}>
-              {isAI && (
-                <>
-                  <ActionButton>
-                    <MdContentCopy size={16} />
-                    Copy
-                  </ActionButton>
-                  <ActionButton>
-                    <MdEdit size={16} />
-                    Edit
-                  </ActionButton>
-                  <ActionButton>
-                    <MdThumbUp size={16} />
-                    Like
-                  </ActionButton>
-                  <ActionButton>
-                    <MdThumbDown size={16} />
-                    Dislike
-                  </ActionButton>
-                </>
-              )}
-            </MessageActions>
+
+            {isAI && (
+              <MessageActions isUser={isUser} isActive={copied}>
+                <ActionButton onClick={handleCopy} className={copied ? 'copied' : ''}>
+                  {copied ? <MdCheck size={16} /> : <MdContentCopy size={16} />}
+                  {copied ? 'Copied' : 'Copy'}
+                </ActionButton>
+              </MessageActions>
+            )}
           </>
         )}
       </MessageContent>
