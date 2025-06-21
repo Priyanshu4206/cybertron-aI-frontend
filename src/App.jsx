@@ -104,9 +104,9 @@ function App() {
 
               {/* Onboarding Routes - Public Only (redirect to /chat if already logged in) */}
               <Route path="/onboarding" element={
-                <PublicOnlyRoute>
-                  <Onboarding />
-                </PublicOnlyRoute>
+                // <PublicOnlyRoute>
+                <Onboarding />
+                // </PublicOnlyRoute>
               } />
 
               {/* Main App Routes - Protected */}

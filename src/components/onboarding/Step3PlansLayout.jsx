@@ -11,6 +11,15 @@ const Wrapper = styled.div`
   flex-direction: column;
   padding: 2rem;
   gap: 1rem;
+  
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 1rem 0.75rem;
+    gap: 0.75rem;
+  }
 `;
 
 const Row = styled.div`
@@ -19,31 +28,68 @@ const Row = styled.div`
   align-items: center;
   justify-content: ${({ center }) => (center ? 'center' : 'space-between')};
   margin: ${({ margin }) => margin || '0'};
+  
+  @media (max-width: 480px) {
+    flex-wrap: wrap;
+    gap: ${({ gap }) => gap || '0.5rem'};
+  }
 `;
 
 const LogoTitle = styled(Row)`
   justify-content: flex-start;
   gap: 1.5rem;
+  
+  @media (max-width: 480px) {
+    gap: 0.75rem;
+  }
 `;
 
 const Logo = styled.img`
   width: 56px;
   height: 56px;
+  
+  @media (max-width: 480px) {
+    width: 42px;
+    height: 42px;
+  }
 `;
 
 const Title = styled.h1`
   font-size: 2.5rem;
   font-weight: bold;
   color: #000;
+  
+  @media (max-width: 768px) {
+    font-size: 2rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 1.5rem;
+  }
 `;
 
 const TabsBillingRow = styled(Row)`
   justify-content: space-between;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  @media (max-width: 480px) {
+    width: 100%;
+  }
 `;
 
 const PlanTabs = styled.div`
   display: flex;
   gap: 0.5rem;
+  overflow-x: auto;
+  
+  @media (max-width: 480px) {
+    width: 100%;
+  }
 `;
 
 const PlanTab = styled.button`
@@ -57,6 +103,18 @@ const PlanTab = styled.button`
   cursor: pointer;
   transition: background 0.18s, color 0.18s;
   outline: none;
+  
+  @media (max-width: 768px) {
+    padding: 0.6rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    flex: 1;
+    white-space: nowrap;
+  }
 `;
 
 const BillingToggle = styled.div`
@@ -65,6 +123,10 @@ const BillingToggle = styled.div`
   background: #eee;
   border-radius: 12px;
   overflow: hidden;
+  
+  @media (max-width: 480px) {
+    width: 100%;
+  }
 `;
 
 const BillingBtn = styled.button`
@@ -78,6 +140,17 @@ const BillingBtn = styled.button`
   cursor: pointer;
   transition: background 0.18s, color 0.18s;
   outline: none;
+  
+  @media (max-width: 768px) {
+    padding: 0.6rem 1.8rem;
+    font-size: 1rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    flex: 1;
+  }
 `;
 
 const CardsRow = styled(Row)`
@@ -85,6 +158,18 @@ const CardsRow = styled(Row)`
   align-items: stretch;
   height: 100%;
   gap: 2rem;
+  flex-wrap: wrap;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+  
+  @media (max-width: 768px) {
+    gap: 1.5rem;
+    margin: 0.5rem 0;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 1rem;
+  }
 `;
 
 const CardWrapper = styled.div`
@@ -100,10 +185,23 @@ const CardWrapper = styled.div`
   box-shadow: ${({ selected }) => (selected ? '0 4px 16px rgba(99,91,255,0.08)' : '0 2px 8px rgba(0,0,0,0.04)')};
   background: #fff;
   padding: 0;
+  
+  @media (max-width: 768px) {
+    min-width: 250px;
+    flex: 1 1 250px;
+  }
+  
+  @media (max-width: 480px) {
+    min-width: 100%;
+  }
 `;
 
 const CardInner = styled.div`
   padding: 2rem 1.5rem 1.5rem 1.5rem;
+  
+  @media (max-width: 480px) {
+    padding: 1.5rem 1.25rem 1.25rem 1.25rem;
+  }
 `;
 
 const BottomSection = styled.div`
@@ -116,6 +214,10 @@ const BottomSection = styled.div`
 
 const CardBottom = styled(BottomSection)`
   padding: 1.2rem 1.5rem;
+  
+  @media (max-width: 480px) {
+    padding: 1rem 1.25rem;
+  }
 `;
 
 const Price = styled.div`
@@ -123,6 +225,10 @@ const Price = styled.div`
   font-weight: 700;
   color: #111;
   margin-bottom: 0.3rem;
+  
+  @media (max-width: 480px) {
+    font-size: 1.75rem;
+  }
 `;
 
 const OldPrice = styled.span`
@@ -130,6 +236,11 @@ const OldPrice = styled.span`
   color: #aaa;
   text-decoration: line-through;
   margin-left: 0.7rem;
+  
+  @media (max-width: 480px) {
+    font-size: 1rem;
+    margin-left: 0.5rem;
+  }
 `;
 
 const RadioCircle = styled.div`
@@ -162,12 +273,21 @@ const CardTitle = styled.h3`
   font-weight: 700;
   margin-bottom: 1.2rem;
   color: #111;
+  
+  @media (max-width: 480px) {
+    font-size: 1.15rem;
+    margin-bottom: 1rem;
+  }
 `;
 
 const FeatureList = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0 0 1.2rem 0;
+  
+  @media (max-width: 480px) {
+    margin: 0 0 1rem 0;
+  }
 `;
 
 const FeatureItem = styled.li`
@@ -183,6 +303,15 @@ const FeatureItem = styled.li`
     margin-left: 0.6rem;
     font-size: 1.1rem;
   }
+  
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+    margin-bottom: 0.6rem;
+    
+    svg {
+      font-size: 1rem;
+    }
+  }
 `;
 
 const EnterpriseButton = styled(Button)`
@@ -193,15 +322,42 @@ const EnterpriseButton = styled(Button)`
   margin: 0;
   max-width: 100%;
   padding: 1.2rem 1.5rem;
+  
+  @media (max-width: 480px) {
+    font-size: 1rem;
+    padding: 1rem 1.25rem;
+  }
 `;
 
 const ActionsRow = styled(Row)`
-  width: 100%;
-  margin: 0 auto;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.7rem;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  
+  @media (max-width: 480px) {
+    gap: 0.75rem;
+  }
+`;
+
+const SkipLink = styled.button`
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 1rem;
+  text-align: center;
+  width: 100%;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s;
+  
+  &:hover {
+    color: #000;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+  }
 `;
 
 const Step3PlansLayout = ({
@@ -217,7 +373,8 @@ const Step3PlansLayout = ({
   onContactSales,
   onBack,
   onContinue,
-  disableContinue
+  disableContinue,
+  onSkip
 }) => (
   <Wrapper>
     <LogoTitle>
@@ -253,53 +410,79 @@ const Step3PlansLayout = ({
         </BillingBtn>
       </BillingToggle>
     </TabsBillingRow>
+
     <CardsRow>
-      {plans.map((plan, idx) => (
+      {plans.filter(plan => plan.id !== 'enterprise').map(plan => (
         <CardWrapper
           key={plan.id}
           selected={selectedPlan === plan.id}
           onClick={() => onPlanSelect(plan.id)}
-          style={{ cursor: 'pointer' }}
         >
+          <RadioCircle selected={selectedPlan === plan.id} />
           <CardInner>
-            <CardTitle>{plan.title}</CardTitle>
-            <RadioCircle selected={selectedPlan === plan.id} />
+            <CardTitle>{plan.name}</CardTitle>
             <FeatureList>
-              {plan.features.map((f, i) => (
-                <FeatureItem key={i}>
-                  {f} <FaCheckCircle /> 
+              {plan.features.map((feature, idx) => (
+                <FeatureItem key={idx}>
+                  {feature}
+                  <FaCheckCircle />
                 </FeatureItem>
               ))}
             </FeatureList>
           </CardInner>
-          <BottomSection>
-            {plan.id === 'enterprise' ? (
-              <EnterpriseButton onClick={onContactSales}>
-                Contact to sales
-              </EnterpriseButton>
-            ) : (
-              <CardBottom>
-                <div style={{ fontSize: '1rem', color: '#888', fontWeight: 500, width:"100px",textAlign:"center" }}>Only Just 70%Off</div>
-                <Price>
-                  ${plan.price.yearly}
-                </Price>
-                <Price>
-                  {plan.price.old && <OldPrice>${plan.price.old}</OldPrice>}
-                </Price>
-              </CardBottom>
-            )}
-          </BottomSection>
+          <CardBottom>
+            <div>
+              <Price>
+                ${billing === 'yearly'
+                  ? (plan.price * 10).toFixed(2)
+                  : plan.price.toFixed(2)}
+                <OldPrice>
+                  ${billing === 'yearly'
+                    ? (plan.price * 12).toFixed(2)
+                    : plan.price}
+                </OldPrice>
+              </Price>
+              <div>{billing === 'monthly' ? '/month' : '/year'}</div>
+            </div>
+            {/* No button here, whole card is clickable */}
+          </CardBottom>
         </CardWrapper>
       ))}
+
+      {plans.find(plan => plan.id === 'enterprise') && (
+        <CardWrapper>
+          <CardInner>
+            <CardTitle>Enterprise</CardTitle>
+            <FeatureList>
+              {plans.find(plan => plan.id === 'enterprise').features.map((feature, idx) => (
+                <FeatureItem key={idx}>
+                  {feature}
+                  <FaCheckCircle />
+                </FeatureItem>
+              ))}
+            </FeatureList>
+          </CardInner>
+          <EnterpriseButton onClick={() => onContactSales()}>
+            Contact Sales
+          </EnterpriseButton>
+        </CardWrapper>
+      )}
     </CardsRow>
+
     <ActionsRow>
-      <Button variant="secondary" onClick={onBack} style={{ width: 180 }}>
+      <Button variant="secondary" onClick={onBack} style={{ flex: 1 }}>
         Back
       </Button>
-      <Button onClick={onContinue} disabled={disableContinue} style={{ width: 180 }}>
-        Continue
+      <Button onClick={onContinue} disabled={disableContinue} style={{ flex: 1 }}>
+        Next
       </Button>
+      {onSkip && (
+        <SkipLink onClick={onSkip}>
+          Skip plan selection for now
+        </SkipLink>
+      )}
     </ActionsRow>
+
   </Wrapper>
 );
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaMagic, FaCreditCard, FaUserCircle, FaHome, FaSignOutAlt, FaSignInAlt, FaTimes } from 'react-icons/fa';
+import { FaMagic, FaCreditCard, FaUserCircle, FaHome, FaSignOutAlt, FaSignInAlt, FaTimes, FaUserPlus } from 'react-icons/fa';
 
 // Context
 import { useAuth } from '../../context/AuthContext';
@@ -144,6 +144,31 @@ const Divider = styled.div`
   display: ${({ isMobile }) => (isMobile ? 'block' : 'none')};
 `;
 
+const AuthButtons = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const SignUpButton = styled(NavButton)`
+  background: #635bff;
+  color: #fff;
+  
+  span {
+    color: #fff;
+  }
+  
+  &:hover {
+    background: #4b44bb;
+    color: #fff;
+    
+    span {
+      color: #fff;
+    }
+  }
+`;
+
 const navItems = [
   { path: '/chat', icon: <FaHome />, label: 'Home' },
   { path: '/automation', icon: <FaMagic />, label: 'Automation' },
@@ -218,17 +243,32 @@ const Sidebar = ({ isOpen, onClose, isMobile }) => {
             </NavButton>
           </>
         ) : (
-          <NavButton
-            to="/login"
-            active={location.pathname.startsWith('/login') ? 1 : 0}
-            aria-label="Login"
-            isMobile={isMobile}
-            onClick={isMobile ? onClose : undefined}
-          >
-            <FaSignInAlt />
-            <span>Login</span>
-            <Tooltip isMobile={isMobile}>Login</Tooltip>
-          </NavButton>
+          <AuthButtons>
+            <NavButton
+              to="/login"
+              active={location.pathname.startsWith('/login') ? 1 : 0}
+              aria-label="Login"
+              isMobile={isMobile}
+              onClick={isMobile ? onClose : undefined}
+            >
+              <FaSignInAlt />
+              <span>Login</span>
+              <Tooltip isMobile={isMobile}>Login</Tooltip>
+            </NavButton>
+
+            {isMobile && (
+              <SignUpButton
+                to="/signup"
+                active={location.pathname.startsWith('/signup') ? 1 : 0}
+                aria-label="Sign Up"
+                isMobile={isMobile}
+                onClick={onClose}
+              >
+                <FaUserPlus />
+                <span>Sign Up</span>
+              </SignUpButton>
+            )}
+          </AuthButtons>
         )}
       </BottomSection>
     </SidebarContainer>

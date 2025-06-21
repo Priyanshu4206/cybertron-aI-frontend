@@ -28,6 +28,17 @@ const Card = styled.div`
   &:hover {
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
   }
+  
+  @media (max-width: 768px) {
+    padding: 1.75rem;
+    gap: 0.75rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 1.5rem;
+    gap: 0.5rem;
+    border-radius: 16px;
+  }
 `;
 
 const Title = styled.h3`
@@ -36,6 +47,16 @@ const Title = styled.h3`
   margin-bottom: 1.2rem;
   text-align: center;
   color: #111;
+  
+  @media (max-width: 768px) {
+    font-size: 1.15rem;
+    margin-bottom: 1rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+  }
 `;
 
 const FeatureList = styled.ul`
@@ -56,6 +77,24 @@ const FeatureItem = styled.li`
     color: #635bff;
     margin-left: 0.6rem;
     font-size: 1.1rem;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 0.95rem;
+    margin-bottom: 0.7rem;
+    
+    svg {
+      font-size: 1rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+    margin-bottom: 0.6rem;
+    
+    svg {
+      font-size: 0.9rem;
+    }
   }
 `;
 
@@ -85,15 +124,31 @@ const RadioCircle = styled.div`
         background: #635bff;
       }
     `}
+    
+  @media (max-width: 480px) {
+    width: 18px;
+    height: 18px;
+    top: 1rem;
+    right: 1rem;
+    
+    ${({ selected }) =>
+    selected &&
+    css`
+        &::after {
+          width: 8px;
+          height: 8px;
+        }
+      `}
+  }
 `;
 
 const AccountTypeCard = ({ title, features, selected, onClick }) => (
   <Card selected={selected} onClick={onClick} tabIndex={0} role="button" aria-pressed={selected}>
     <Title>{title}</Title>
     <FeatureList>
-      {features.map((f, i) => (
-        <FeatureItem key={i}>
-          {f} <FaCheckCircle />
+      {features.map((feature, index) => (
+        <FeatureItem key={index}>
+          {feature} <FaCheckCircle />
         </FeatureItem>
       ))}
     </FeatureList>
