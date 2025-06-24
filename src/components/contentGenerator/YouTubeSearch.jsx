@@ -10,26 +10,41 @@ import { EmptyState } from '../imageGenerator/EmptyState';
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
   height: 100%;
   overflow-y: auto;
-  padding: 16px;
+  padding: 12px;
   width: 100%;
   background-color: #fff;
+  
+  @media (min-width: 768px) {
+    padding: 16px;
+    gap: 1rem;
+  }
 `;
 
 const Title = styled.h2`
-  font-size: 28px;
+  font-size: 18px;
   color: #111827;
   text-align: center;
   font-weight: 600;
+  margin: 0;
+  
+  @media (min-width: 768px) {
+    font-size: 20px;
+  }
+  
+  @media (min-width: 1024px) {
+    font-size: 22px;
+  }
 `;
 
 const SearchForm = styled.div`
   width: 100%;
   display: flex;
-  gap: 1rem;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: stretch;
 `;
 
 const InputGroup = styled.div`
@@ -37,8 +52,12 @@ const InputGroup = styled.div`
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   flex: 1;
+  
+  @media (min-width: 640px) {
+    gap: 12px;
+  }
 `;
 
 const SearchBarRow = styled.div`
@@ -46,22 +65,45 @@ const SearchBarRow = styled.div`
   align-items: center;
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 20px;
-  padding: 1.25rem;
+  border-radius: 16px;
+  padding: 0.75rem;
   width: 100%;
-  gap: 1rem;
+  gap: 0.5rem;
+  
+  @media (min-width: 640px) {
+    padding: 1rem;
+    gap: 0.75rem;
+    border-radius: 20px;
+  }
 `;
 
 const SearchInput = styled.input`
   flex: 1;
   border: none;
   background: transparent;
-  font-size: 1.1rem;
+  font-size: 14px;
   color: #333;
   outline: none;
   
   &::placeholder {
     color: #999;
+    font-size: 13px;
+  }
+  
+  @media (min-width: 640px) {
+    font-size: 15px;
+    
+    &::placeholder {
+      font-size: 14px;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    font-size: 16px;
+    
+    &::placeholder {
+      font-size: 15px;
+    }
   }
 `;
 
@@ -73,35 +115,53 @@ const VideoResults = styled.div`
 
 const VideoList = styled.div`
   display: grid;
-  gap: 16px;
-  padding: 16px 8px;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+  padding: 8px 4px;
+  grid-template-columns: 1fr;
   
-  @media (min-width: 1200px) {
-    grid-template-columns: repeat(4, 1fr);
+  @media (min-width: 640px) {
+    gap: 14px;
+    padding: 12px 6px;
   }
   
   @media (min-width: 768px) and (max-width: 1199px) {
     grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 16px 8px;
   }
   
-  @media (max-width: 767px) {
-    grid-template-columns: 1fr;
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    padding: 16px 8px;
+  }
+  
+  @media (min-width: 1400px) {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   }
 `;
 
 const VideoCard = styled.div`
   background: #fff;
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   border: 2px solid ${props => props.selected ? '#000' : 'transparent'};
   
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+  
+  @media (min-width: 768px) {
+    border-radius: 10px;
+    
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
   }
 `;
 
@@ -113,115 +173,247 @@ const VideoThumbnail = styled.div`
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 32px;
+  font-size: 20px;
+  
+  @media (min-width: 640px) {
+    font-size: 24px;
+  }
+  
+  @media (min-width: 1024px) {
+    font-size: 28px;
+  }
 `;
 
 const PlayIcon = styled(FaPlay)`
   background: rgba(0, 0, 0, 0.7);
-  padding: 12px;
+  padding: 8px;
   border-radius: 50%;
+  
+  @media (min-width: 640px) {
+    padding: 10px;
+  }
+  
+  @media (min-width: 1024px) {
+    padding: 12px;
+  }
 `;
 
 const ThumbnailOverlay = styled.div`
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 6px;
+  right: 6px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
+  
+  @media (min-width: 640px) {
+    top: 8px;
+    right: 8px;
+    gap: 4px;
+  }
 `;
 
 const OverlayBadge = styled.div`
   background: ${props => props.bg || 'rgba(0, 0, 0, 0.7)'};
   color: #fff;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
   font-weight: 600;
   text-align: center;
+  line-height: 1.2;
+  
+  @media (min-width: 640px) {
+    padding: 3px 7px;
+    font-size: 11px;
+    border-radius: 4px;
+  }
+  
+  @media (min-width: 1024px) {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
 `;
 
 const VideoInfo = styled.div`
-  padding: 12px;
+  padding: 8px;
+  
+  @media (min-width: 640px) {
+    padding: 10px;
+  }
+  
+  @media (min-width: 1024px) {
+    padding: 12px;
+  }
 `;
 
 const VideoTitle = styled.h3`
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: #000;
-  margin-bottom: 6px;
+  margin: 0 0 4px 0;
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  height: 36px;
+  height: 30px;
+  
+  @media (min-width: 640px) {
+    font-size: 13px;
+    height: 32px;
+    margin-bottom: 5px;
+  }
+  
+  @media (min-width: 1024px) {
+    font-size: 14px;
+    height: 36px;
+    margin-bottom: 6px;
+  }
 `;
 
 const VideoChannel = styled.p`
-  font-size: 12px;
-  color: #000;
-  margin-bottom: 6px;
+  font-size: 10px;
+  color: #666;
+  margin: 0 0 4px 0;
+  
+  @media (min-width: 640px) {
+    font-size: 11px;
+    margin-bottom: 5px;
+  }
+  
+  @media (min-width: 1024px) {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
 `;
 
 const VideoStats = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 11px;
-  color: #000;
+  gap: 8px;
+  font-size: 9px;
+  color: #666;
+  
+  @media (min-width: 640px) {
+    font-size: 10px;
+    gap: 10px;
+  }
+  
+  @media (min-width: 1024px) {
+    font-size: 11px;
+    gap: 12px;
+  }
 `;
 
 const StatItem = styled.div`
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
+  
+  @media (min-width: 640px) {
+    gap: 3px;
+  }
 `;
 
 const ErrorMessage = styled.p`
   color: #ef4444;
-  font-size: 14px;
-  margin-top: 8px;
+  font-size: 12px;
+  margin: 4px 0 0 0;
   text-align: center;
+  
+  @media (min-width: 640px) {
+    font-size: 13px;
+    margin-top: 6px;
+  }
+  
+  @media (min-width: 1024px) {
+    font-size: 14px;
+    margin-top: 8px;
+  }
 `;
 
 const BottomButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
-  gap: 16px;
-  margin-top: auto;  
-
-  @media (max-width: 640px) {
+  gap: 8px;
+  margin-top: auto;
+  
+  @media (min-width: 640px) {
+    gap: 12px;
+  }
+  
+  @media (min-width: 1024px) {
+    gap: 16px;
+  }
+  
+  @media (max-width: 480px) {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
   }
 `;
+
 const SearchButton = styled(Button)`
   width: fit-content;
-  min-width: 150px;
+  min-width: 80px;
   margin-top: 0;
+  padding: 0.75rem 1rem;
+  font-size: 13px;
+  
+  @media (min-width: 640px) {
+    min-width: 100px;
+    padding: 0.75rem 1.25rem;
+    font-size: 14px;
+  }
+  
+  @media (min-width: 1024px) {
+    min-width: 120px;
+    padding: 0.75rem 1.5rem;
+    font-size: 15px;
+  }
 `;
 
 const BottomButton = styled.button`
-  padding: 12px 24px;
-  border-radius: 8px;
+  padding: 8px 16px;
+  border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   text-align: center;
-  font-size: 14px;
+  font-size: 12px;
   border: none;
-  min-width: 140px;
+  min-width: 80px;
+  
+  @media (min-width: 640px) {
+    padding: 10px 20px;
+    font-size: 13px;
+    min-width: 100px;
+    border-radius: 7px;
+  }
+  
+  @media (min-width: 1024px) {
+    padding: 12px 24px;
+    font-size: 14px;
+    min-width: 120px;
+    border-radius: 8px;
+  }
   
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   }
   
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+  }
+  
+  @media (min-width: 1024px) {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
   }
 `;
 
@@ -243,6 +435,22 @@ const NextButton = styled(BottomButton)`
   }
 `;
 
+const SearchIconWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #666;
+  
+  @media (min-width: 640px) {
+    font-size: 16px;
+  }
+  
+  @media (min-width: 1024px) {
+    font-size: 18px;
+  }
+`;
+
 const YouTubeSearch = ({ onVideoSelect, onHavePrompt }) => {
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [error, setError] = useState('');
@@ -260,10 +468,10 @@ const YouTubeSearch = ({ onVideoSelect, onHavePrompt }) => {
       setError('Please enter a YouTube URL or search term');
       return;
     }
-    
+
     setError('');
     setIsSearching(true);
-    
+
     // Simulate API call delay
     setTimeout(() => {
       setShowResults(true);
@@ -286,15 +494,17 @@ const YouTubeSearch = ({ onVideoSelect, onHavePrompt }) => {
       <SearchForm>
         <Title>Search Topic</Title>
         <InputGroup>
-        <SearchBarRow>
+          <SearchBarRow>
             <SearchInput
-                type="search"
-                placeholder="Ex - Search Youtube video"
-                value={youtubeUrl}
-                onChange={(e) => setYoutubeUrl(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
+              type="search"
+              placeholder="Search YouTube video"
+              value={youtubeUrl}
+              onChange={(e) => setYoutubeUrl(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
             />
-            <FaSearch style={{ color: 'black', fontSize: '1.25rem' }} />
+            <SearchIconWrapper>
+              <FaSearch />
+            </SearchIconWrapper>
           </SearchBarRow>
           <SearchButton onClick={handleSubmit} disabled={!youtubeUrl.trim() || isSearching}>
             {isSearching ? 'Searching...' : 'Search'}
@@ -337,15 +547,15 @@ const YouTubeSearch = ({ onVideoSelect, onHavePrompt }) => {
             ))}
           </VideoList>
         </VideoResults>
-      ) : 
-      <EmptyState 
-        title="Find Video for Reference" 
-        description="Search for a YouTube video to use as reference for your content"
-      />}
+      ) :
+        <EmptyState
+          title="Find Video for Reference"
+          description="Search for a YouTube video to use as reference for your content"
+        />}
 
       <BottomButtonContainer>
         <ScriptButton onClick={onHavePrompt}>
-          I have Script & Promt
+          I have Script & Prompt
         </ScriptButton>
         <NextButton onClick={handleNext} disabled={!selectedVideo}>
           Next

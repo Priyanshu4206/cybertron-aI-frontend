@@ -288,6 +288,7 @@ const SignUp = () => {
     try {
       setSubmitting(true);
       setSubmitError('');
+      // console.log("On Submitting: ", values);
 
       const result = await signup({
         name: values.name,
@@ -296,8 +297,13 @@ const SignUp = () => {
       });
 
       if (result.success) {
-        // Direct to onboarding (no OTP required)
-        navigate('/onboarding');
+        if (result.requiresOTP) {
+          // Redirect to OTP page with identifier
+          navigate('/otp', { state: { identifier: values.email, redirectTo: '/onboarding' } });
+        } else {
+          // Direct to onboarding (no OTP required)
+          navigate('/onboarding');
+        }
       } else {
         setSubmitError(result.error || 'Registration failed. Please try again.');
       }

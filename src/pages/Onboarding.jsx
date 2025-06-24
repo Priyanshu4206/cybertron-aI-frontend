@@ -8,15 +8,13 @@ import Button from '../components/common/Button';
 import Card from '../components/common/Card';
 import OnboardingPortraitLayout from '../components/onboarding/OnboardingPortraitLayout';
 import AccountTypeCard from '../components/onboarding/AccountTypeCard';
-import PlanCard from '../components/onboarding/PlanCard';
-import PlanTabs from '../components/onboarding/PlanTabs';
 import Step3PlansLayout from '../components/onboarding/Step3PlansLayout';
 
 // Context
 import { useAuth } from '../context/AuthContext';
 
 // Data
-import { onboardingQuestions, accountTypes, planTabs, plansData } from '../utils/onboardingData';
+import { onboardingQuestions, accountTypes, plansData, defaultFormState, mapFormDataToBackend, validateStep3, validateStep2, validateStep1 } from '../utils/onboardingData';
 
 const Wrapper = styled.div`
   display: flex;
@@ -198,34 +196,16 @@ const SelectIcon = styled(FaChevronDown)`
 `;
 
 const ButtonsContainer = styled.div`
+  width: 100%;
   display: flex;
-  gap: 1rem;
+  justify-content: flex-end;
+  align-items: center;
   margin-top: 1.5rem;
+  gap: 1rem;
   
   @media (max-width: 480px) {
-    gap: 0.75rem;
-  }
-`;
-
-const ActionButton = styled.button`
-  flex: 1;
-  background: ${props => props.primary ? '#111' : 'transparent'};
-  color: ${props => props.primary ? '#fff' : '#111'};
-  font-size: 1.15rem;
-  font-weight: 600;
-  border: ${props => props.primary ? 'none' : '1px solid #ccc'};
-  border-radius: 10px;
-  padding: 1rem 0;
-  box-shadow: ${props => props.primary ? '0 2px 8px rgba(0,0,0,0.1)' : 'none'};
-  transition: all 0.15s;
-  
-  &:hover {
-    background: ${props => props.primary ? '#232323' : '#f5f5f5'};
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 1rem;
-    padding: 0.85rem 0;
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
 `;
 
@@ -255,8 +235,8 @@ const AccountCardGrid = styled.div`
   padding: 1.5rem 1rem;
   
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    max-width: 500px;
+    // grid-template-columns: 1fr;
+    // max-width: 500px;
     margin: 0 auto;
   }
   
@@ -266,20 +246,18 @@ const AccountCardGrid = styled.div`
   }
 `;
 
-const SkipLink = styled.button`
+const SkipLink = styled(Button)`
   background: none;
-  border: none;
   color: #666;
-  font-size: 1rem;
   text-align: center;
-  width: 100%;
-  margin-top: 1rem;
   cursor: pointer;
-  text-decoration: underline;
+  border: 1px solid #666;
+  width: fit-content;
   transition: color 0.2s;
   
   &:hover {
     color: #000;
+    border: 1px solid black;
   }
   
   @media (max-width: 480px) {
@@ -289,49 +267,88 @@ const SkipLink = styled.button`
 
 const Onboarding = () => {
   const navigate = useNavigate();
-  const { saveFormState } = useAuth();
+  const { saveFormState, completeGoogleProfile, completeProfile, user } = useAuth();
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState({
-    whatDoYouDo: '',
-    describe: '',
-    purpose: '',
-    whoYouAre: '',
-    accountType: '',
-    planTab: 'individual',
-    plan: '',
-    billing: 'yearly',
-  });
+  const [form, setForm] = useState(defaultFormState);
+  const [submitError, setSubmitError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Step 1 Handlers
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Step 2 Handlers
+  // Step 2 Handlers - Updated to ensure planTab matches accountType
   const handleAccountTypeSelect = (id) => {
-    setForm((prev) => ({ ...prev, accountType: id, planTab: id, plan: '' }));
+    setForm((prev) => ({
+      ...prev,
+      accountType: id,
+      planTab: id,  // Keep planTab in sync with accountType
+      plan: ''      // Reset plan selection when account type changes
+    }));
   };
 
   // Step 3 Handlers
   const handlePlanTab = (id) => {
     setForm((prev) => ({ ...prev, planTab: id, plan: '' }));
   };
+
   const handlePlanSelect = (id) => {
     setForm((prev) => ({ ...prev, plan: id }));
   };
+
   const handleBilling = (billing) => {
     setForm((prev) => ({ ...prev, billing }));
   };
 
-  // Navigation
-  const handleContinue = (e) => {
+  // Navigation handlers
+  const handleContinue = async (e) => {
     e && e.preventDefault();
-    if (step === 1) setStep(2);
-    else if (step === 2) setStep(3);
-    else {
-      // Save and finish onboarding
-      saveFormState({ onboarding: form });
-      navigate('/chat');
+    setSubmitError('');
+    if (step === 1) {
+      setStep(2);
+    } else if (step === 2) {
+      if (!validateStep2(form)) {
+        alert('Please select an account type');
+        return;
+      }
+      setStep(3);
+    } else {
+      if (!validateStep3(form)) {
+        alert('Please select a plan');
+        return;
+      }
+      const backendData = mapFormDataToBackend(form);
+      setIsSubmitting(true);
+      // If user is a Google user (firebaseUid present), complete Google profile
+      if (user && user.firebaseUid) {
+        // console.log("User", user);
+        const profileData = {
+          ...backendData,
+          firebaseUid: user.firebaseUid,
+          fullName: user.fullName || user.displayName,
+          email: user.email,
+          phoneNumber: user.phoneNumber,
+        };
+        const result = await completeGoogleProfile(profileData);
+        setIsSubmitting(false);
+        if (result.success) {
+          navigate('/chat');
+        } else {
+          setSubmitError(result.error || 'Failed to complete registration.');
+        }
+      } else {
+        // For non-Google users, complete profile and redirect to chat
+        const result = await completeProfile(backendData);
+        setIsSubmitting(false);
+        if (result.success) {
+          navigate('/chat');
+        } else {
+          setSubmitError(result.error || 'Failed to complete profile.');
+          // Optionally save form state for retry
+          saveFormState({ onboarding: backendData });
+        }
+      }
     }
   };
 
@@ -341,21 +358,45 @@ const Onboarding = () => {
   };
 
   const handleSkip = (skipStep) => {
-    // Skip only the current step and move to the next
     if (skipStep === 1) {
-      // Skip step 1 (questions)
+      // Skip step 1 - set minimal defaults
+      setForm(prev => ({
+        ...prev,
+        whatDoYouDo: 'Not specified',
+        describe: 'Not specified',
+        purpose: 'Personal Assistant',
+        whoYouAre: 'Individual Professional'
+      }));
       setStep(2);
     } else if (skipStep === 2) {
-      // Skip step 2 (account type) and move to step 3
-      setForm(prev => ({ ...prev, accountType: 'individual' }));
+      // Skip step 2 - use INDIVIDUAL as default
+      setForm(prev => ({
+        ...prev,
+        accountType: 'INDIVIDUAL',
+        planTab: 'INDIVIDUAL'
+      }));
       setStep(3);
     } else if (skipStep === 3) {
-      // For step 3 (plan selection), set default values and finish
-      setForm(prev => ({ ...prev, plan: 'basic' }));
-      // Save and go to the next page
-      saveFormState({ onboarding: form });
-      navigate('/chat');
+      // Skip step 3 - use free plan as default
+      const updatedForm = {
+        ...form,
+        plan: 'free',
+        billing: 'MONTHLY'
+      };
+
+      const backendData = mapFormDataToBackend(updatedForm);
+      saveFormState({ onboarding: backendData });
+      navigate('/login');
     }
+  };
+
+  const handleContactSales = () => {
+    // For enterprise plans, might want to redirect to a contact form
+    // or handle it differently than regular plan selection
+    setForm(prev => ({ ...prev, plan: 'enterprise' }));
+
+    // Maybe redirect to contact form instead:
+    // navigate('/contact-sales', { state: { accountType: form.accountType } });
   };
 
   return (
@@ -370,7 +411,7 @@ const Onboarding = () => {
             <Tagline>All In One</Tagline>
           </Left>
           <Right>
-            <Card style={{ maxWidth: 500, width: '100%' }}>
+            <Card style={{ maxWidth: 500, width: '100%' }} elevation='none'>
               <CardTitle>Just Answer Few Questions</CardTitle>
               <form onSubmit={handleContinue}>
                 {onboardingQuestions.map((q) => (
@@ -403,55 +444,59 @@ const Onboarding = () => {
                   </FormGroup>
                 ))}
                 <ButtonsContainer>
-                  <ActionButton primary type="submit">Next</ActionButton>
-                  <ActionButton onClick={() => handleSkip(1)}>Skip</ActionButton>
+                  <Button style={{ flex: 1 }}>Next</Button>
+                  <Button variant="secondary" onClick={() => handleSkip(1)} style={{ flex: 1 }}>Skip</Button>
                 </ButtonsContainer>
               </form>
             </Card>
           </Right>
-        </Wrapper>
+        </Wrapper >
       )}
-      {step === 2 && (
-        <OnboardingPortraitLayout
-          heading="Choose Account Type"
-          subheading="( you can change it in settings )"
-          actions={
-            <ButtonsContainer>
-              <Button variant="secondary" onClick={handleBack} style={{ width: '100%' }}>Back</Button>
-              <Button onClick={handleContinue} disabled={!form.accountType} style={{ width: '100%' }}>Next</Button>
-              <SkipLink onClick={() => handleSkip(2)}>Skip for now</SkipLink>
-            </ButtonsContainer>
-          }
-        >
-          <AccountCardGrid>
-            {accountTypes.map((type) => (
-              <AccountTypeCard
-                key={type.id}
-                title={type.title}
-                features={type.features}
-                selected={form.accountType === type.id}
-                onClick={() => handleAccountTypeSelect(type.id)}
-              />
-            ))}
-          </AccountCardGrid>
-        </OnboardingPortraitLayout>
-      )}
-      {step === 3 && (
-        <Step3PlansLayout
-          planTab={form.planTab}
-          onPlanTabChange={handlePlanTab}
-          billing={form.billing}
-          onBillingChange={handleBilling}
-          plans={plansData[form.planTab]}
-          selectedPlan={form.plan}
-          onPlanSelect={handlePlanSelect}
-          onContactSales={() => handlePlanSelect('enterprise')}
-          onBack={handleBack}
-          onContinue={handleContinue}
-          disableContinue={!form.plan}
-          onSkip={() => handleSkip(3)}
-        />
-      )}
+      {
+        step === 2 && (
+          <OnboardingPortraitLayout
+            heading="Choose Account Type"
+            subheading="( you can change it in settings )"
+            actions={
+              <ButtonsContainer>
+                <Button variant="secondary" onClick={handleBack} style={{ flex: 1 }}>Back</Button>
+                <Button onClick={handleContinue} disabled={!form.accountType} style={{ flex: 1 }}>Next</Button>
+                <SkipLink onClick={() => handleSkip(2)}>Skip for now</SkipLink>
+              </ButtonsContainer>
+            }
+          >
+            <AccountCardGrid>
+              {accountTypes.map((type) => (
+                <AccountTypeCard
+                  key={type.id}
+                  title={type.title}
+                  features={type.features}
+                  selected={form.accountType === type.id}
+                  onClick={() => handleAccountTypeSelect(type.id)}
+                />
+              ))}
+            </AccountCardGrid>
+          </OnboardingPortraitLayout>
+        )
+      }
+      {
+        step === 3 && (
+          <Step3PlansLayout
+            planTab={form.planTab}
+            onPlanTabChange={handlePlanTab}
+            billing={form.billing}
+            onBillingChange={handleBilling}
+            plans={plansData[form.planTab] || plansData['INDIVIDUAL']}
+            selectedPlan={form.plan}
+            onPlanSelect={handlePlanSelect}
+            onContactSales={handleContactSales}
+            onBack={handleBack}
+            onContinue={handleContinue}
+            disableContinue={!form.plan}
+            onSkip={() => handleSkip(3)}
+          />
+        )
+      }
     </>
   );
 };

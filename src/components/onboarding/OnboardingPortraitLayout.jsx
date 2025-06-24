@@ -4,9 +4,9 @@ import styled from 'styled-components';
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
   background: #fff;
   padding: 2rem;
+  // height: 100vh;
   
   @media (max-width: 768px) {
     padding: 1.5rem;
@@ -90,7 +90,7 @@ const Content = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow-y: auto;
+  // overflow-y: auto;
 `;
 
 // const Actions = styled.div`

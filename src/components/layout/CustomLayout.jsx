@@ -7,13 +7,6 @@ import Header from './Header';
 
 const SIDEBAR_WIDTH = '68px';
 
-const LayoutContainer = styled.div`
-  display: flex;
-  min-height: 100vh;
-  overflow-x: hidden;
-  position: relative;
-`;
-
 const MainContent = styled.main`
   flex: 1;
   padding-top: 64px;
@@ -24,18 +17,6 @@ const MainContent = styled.main`
   flex-direction: column;
   overflow: hidden;
   width: ${({ isMobile }) => isMobile ? '100%' : `calc(100% - ${SIDEBAR_WIDTH})`};
-  height: 100vh;  // ADD THIS LINE
-  position: fixed;  // ADD THIS LINE
-  right: 0;  // ADD THIS LINE
-`;
-
-const ContentWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-  height: calc(100vh - 64px);
 `;
 
 const Overlay = styled.div`
@@ -51,7 +32,7 @@ const Overlay = styled.div`
   transition: opacity 0.3s ease, visibility 0.3s ease;
 `;
 
-const Layout = ({ children, title = 'Dashboard' }) => {
+const CustomLayout = ({ children, title = 'Dashboard' }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -85,7 +66,7 @@ const Layout = ({ children, title = 'Dashboard' }) => {
   };
 
   return (
-    <LayoutContainer className="layout-container">
+    <>
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={closeSidebar}
@@ -102,12 +83,10 @@ const Layout = ({ children, title = 'Dashboard' }) => {
       <Overlay isOpen={isSidebarOpen && isMobile} onClick={closeSidebar} />
 
       <MainContent isSidebarOpen={isSidebarOpen} isMobile={isMobile}>
-        <ContentWrapper className="scrollable-content">
-          {children}
-        </ContentWrapper>
+        {children}
       </MainContent>
-    </LayoutContainer>
+    </>
   );
 };
 
-export default Layout; 
+export default CustomLayout; 

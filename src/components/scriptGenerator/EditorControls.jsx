@@ -2,9 +2,9 @@ import React from 'react';
 import { FaCopy } from 'react-icons/fa';
 import { ControlsBar, ControlButton } from './EditorComponents';
 
-const EditorControls = ({ 
-  handleParaphrasing, 
-  handleExport, 
+const EditorControls = ({
+  handleParaphrasing,
+  handleExport,
   handleCopyToClipboard,
   isCopied
 }) => {
@@ -16,7 +16,7 @@ const EditorControls = ({
         </ControlButton>
         <ControlButton onClick={handleCopyToClipboard}>
           <FaCopy style={{ marginRight: '5px' }} />
-          {isCopied ? 'Copied!' : 'Copy to Clipboard'}
+          {isCopied ? 'Copied!' : 'Copy All'}
         </ControlButton>
       </div>
       <ControlButton primary onClick={handleExport}>

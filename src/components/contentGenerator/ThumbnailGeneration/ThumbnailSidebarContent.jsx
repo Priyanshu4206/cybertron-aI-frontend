@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PromptFormArea from '../../thumbnailGenerator/PromptFormArea';
+import { useUI } from '../../../context/UIContext';
 
 const ThumbnailSidebarContent = ({ onGenerate, initialData }) => {
   // Form state
@@ -10,6 +11,9 @@ const ThumbnailSidebarContent = ({ onGenerate, initialData }) => {
   const [type, setType] = useState(initialData?.type || 'Type');
   const [style, setStyle] = useState(initialData?.style || 'Style');
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // SubSidebar Updates
+  const { isMobileView, isSubSidebarOpen, toggleSubSidebar } = useUI();
 
   // Update form state when initialData changes
   useEffect(() => {
@@ -25,9 +29,13 @@ const ThumbnailSidebarContent = ({ onGenerate, initialData }) => {
 
   const handleGenerate = () => {
     if (!prompt.trim()) return;
-    
+
     setIsGenerating(true);
-    
+
+    if (isSubSidebarOpen && isMobileView) {
+      toggleSubSidebar();
+    }
+
     // Collect form data
     const formData = {
       prompt,
@@ -37,12 +45,12 @@ const ThumbnailSidebarContent = ({ onGenerate, initialData }) => {
       type,
       style
     };
-    
+
     // Call the parent's onGenerate with all form data
     if (onGenerate) {
       onGenerate(formData);
     }
-    
+
     // Reset generating state after a delay
     setTimeout(() => {
       setIsGenerating(false);

@@ -27,7 +27,7 @@ const MainContainer = styled.div`
 const ContentArea = styled.div`
   flex: 1;
   overflow-y: auto;
-  background: #f9f9f9;
+  background: #fff;
   height: calc(100vh - 64px);
   display: flex;
   flex-direction: column;
@@ -38,14 +38,14 @@ const ContentArea = styled.div`
 
 const ThumbnailGenerator = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();  
+  const { isAuthenticated } = useAuth();
 
   // Form state for passing to ThumbnailSidebarContent
   const [thumbnailFormData, setThumbnailFormData] = useState(null);
-  
+
   // Navigation state
   const [activeNavItem, setActiveNavItem] = useState('thumbnail-creation');
-  
+
   // App state for determining content centering
   const [shouldCenterContent, setShouldCenterContent] = useState(false);
 
@@ -60,7 +60,7 @@ const ThumbnailGenerator = () => {
     // Add navigation logic here
     if (isAuthenticated) {
       if (route) {
-          navigate(route);
+        navigate(route);
       }
     } else {
       navigate('/login', { state: { from: { pathname: route || '/chat' } } });
@@ -88,7 +88,7 @@ const ThumbnailGenerator = () => {
 
   // Main form content
   const mainContent = (
-    <ThumbnailSidebarContent 
+    <ThumbnailSidebarContent
       onGenerate={handleGenerateThumbnail}
       initialData={thumbnailFormData}
     />
@@ -96,7 +96,7 @@ const ThumbnailGenerator = () => {
 
   // History content
   const historyContent = (
-    <HistoryMenu 
+    <HistoryMenu
       items={historyItems}
       onItemClick={handleHistoryItemClick}
     />
@@ -112,9 +112,9 @@ const ThumbnailGenerator = () => {
           showHistoryToggle={true}
           historyContent={historyContent}
         />
-        
+
         <ContentArea center={shouldCenterContent}>
-          <ThumbnailGenerationContent 
+          <ThumbnailGenerationContent
             prompt={thumbnailFormData?.prompt || ''}
             selectedRatio={thumbnailFormData?.selectedRatio || '16:9'}
             language={thumbnailFormData?.language || '10'}

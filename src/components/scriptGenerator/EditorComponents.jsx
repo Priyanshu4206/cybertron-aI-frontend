@@ -16,7 +16,6 @@ export const Toolbar = styled.div`
   display: flex;
   padding: 10px;
   border-bottom: 1px solid #e0e0e0;
-  background: #f9f9f9;
   flex-wrap: wrap;
   gap: 5px;
   color: #000;
@@ -143,7 +142,9 @@ export const ControlsBar = styled.div`
   align-items: center;
   padding: 15px;
   border-top: 1px solid #e0e0e0;
-  background: #f9f9f9;
+  background: transparent;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 `;
 
 export const ControlButton = styled.button`
@@ -151,8 +152,8 @@ export const ControlButton = styled.button`
   color: ${props => props.primary ? '#fff' : '#000'};
   border: 1px solid #000;
   border-radius: 4px;
-  padding: 8px 16px;
   cursor: pointer;
+  font-size: 13px;
   font-weight: 500;
   display: flex;
   align-items: center;

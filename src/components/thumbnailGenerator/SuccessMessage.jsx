@@ -48,7 +48,7 @@ const SuccessMessage = ({ title, message, autoDismiss = true, dismissTime = 3000
       const timer = setTimeout(() => {
         onDismiss();
       }, dismissTime);
-      
+
       return () => clearTimeout(timer);
     }
   }, [autoDismiss, dismissTime, onDismiss]);

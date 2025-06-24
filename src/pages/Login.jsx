@@ -329,7 +329,7 @@ const Login = () => {
 
     try {
       const result = await loginWithGoogle();
-      console.log("Result is: ", result);
+      // console.log("Result is: ", result);
       if (result.success) {
         if (result.isNewUser) {
           // New user - redirect to onboarding to collect additional information

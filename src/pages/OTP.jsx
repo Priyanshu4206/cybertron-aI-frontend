@@ -387,8 +387,8 @@ const OTP = () => {
       const result = await verifyOTP(otpCode);
 
       if (result.success) {
-        // OTP verified successfully - redirect to the requested page
-        navigate(redirectTo);
+        // OTP verified successfully - redirect to the requested page (default to onboarding)
+        navigate(redirectTo || '/onboarding');
       } else {
         setError(result.error || 'Invalid OTP code. Please try again.');
       }

@@ -5,7 +5,6 @@ import { planTabs } from '../../utils/onboardingData';
 import { FaCheckCircle } from 'react-icons/fa';
 
 const Wrapper = styled.div`
-  height: 100vh;
   background: #fff;
   display: flex;
   flex-direction: column;
@@ -153,29 +152,29 @@ const BillingBtn = styled.button`
   }
 `;
 
-const CardsRow = styled(Row)`
-  justify-content: center;
-  align-items: stretch;
-  height: 100%;
+const AccountCardGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
-  flex-wrap: wrap;
-  overflow-y: auto;
-  padding: 0.5rem 0;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 1.5rem 1rem;
   
   @media (max-width: 768px) {
-    gap: 1.5rem;
-    margin: 0.5rem 0;
+    // grid-template-columns: 1fr;
+    // max-width: 500px;
+    margin: 0 auto;
   }
   
   @media (max-width: 480px) {
-    gap: 1rem;
+    padding: 1rem 0.5rem;
+    gap: 1.5rem;
   }
 `;
 
 const CardWrapper = styled.div`
-  min-width: 300px;
   max-width: 768px;
-  flex: 1 1 300px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -332,27 +331,27 @@ const EnterpriseButton = styled(Button)`
 const ActionsRow = styled(Row)`
   display: flex;
   gap: 1rem;
+  justify-content: flex-end;
   margin-top: 1.5rem;
   
   @media (max-width: 480px) {
+    flex-wrap: wrap;
     gap: 0.75rem;
   }
 `;
 
-const SkipLink = styled.button`
+const SkipLink = styled(Button)`
   background: none;
-  border: none;
   color: #666;
-  font-size: 1rem;
   text-align: center;
-  width: 100%;
-  margin-top: 0.5rem;
   cursor: pointer;
-  text-decoration: underline;
+  border: 1px solid #666;
+  width: fit-content;
   transition: color 0.2s;
   
   &:hover {
     color: #000;
+    border: 1px solid black;
   }
   
   @media (max-width: 480px) {
@@ -411,7 +410,7 @@ const Step3PlansLayout = ({
       </BillingToggle>
     </TabsBillingRow>
 
-    <CardsRow>
+    <AccountCardGrid>
       {plans.filter(plan => plan.id !== 'enterprise').map(plan => (
         <CardWrapper
           key={plan.id}
@@ -467,7 +466,7 @@ const Step3PlansLayout = ({
           </EnterpriseButton>
         </CardWrapper>
       )}
-    </CardsRow>
+    </AccountCardGrid>
 
     <ActionsRow>
       <Button variant="secondary" onClick={onBack} style={{ flex: 1 }}>
@@ -478,7 +477,7 @@ const Step3PlansLayout = ({
       </Button>
       {onSkip && (
         <SkipLink onClick={onSkip}>
-          Skip plan selection for now
+          Skip for now
         </SkipLink>
       )}
     </ActionsRow>

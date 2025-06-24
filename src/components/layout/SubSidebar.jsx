@@ -6,14 +6,14 @@ import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { BiObjectsHorizontalLeft } from 'react-icons/bi';
 
 const SubSidebarContainer = styled.div`
-  position: ${({ isMobileView }) => isMobileView ? 'fixed' : 'relative'};
-  left: ${({ isMobileView }) => isMobileView ? '0' : 'auto'};
+  height: calc(100vh - 64px);  // Change this line
+  position: ${({ isMobileView }) => isMobileView ? 'fixed' : 'sticky'};  // Change 'relative' to 'sticky'
   top: ${({ isMobileView }) => isMobileView ? '64px' : '0'};
+  left: ${({ isMobileView }) => isMobileView ? '0' : 'auto'};
   z-index: ${({ isMobileView }) => isMobileView ? '1001' : '1'};
-  width: ${({ isOpen, isMobileView }) => (isOpen && isMobileView) ? '100%' : isOpen ? '325px' : '48px'};
-  max-width: ${({ isMobileView }) => isMobileView ? '100%' : '325px'};
+  width: ${({ isOpen, isMobileView }) => (isOpen && isMobileView) ? '100%' : isOpen ? '350px' : '48px'};
+  max-width: ${({ isMobileView }) => isMobileView ? '100%' : '350px'};
   background: ${({ currentView }) => currentView === 'nav' ? '#181818' : '#ffffff'};
-  height: ${({ isMobileView }) => isMobileView ? 'calc(100vh - 64px)' : 'calc(100vh - 64px)'};
   overflow: hidden;
   transition: all 0.3s ease;
   box-shadow: ${({ isOpen }) => (isOpen ? '2px 0 5px rgba(0, 0, 0, 0.05)' : 'none')};
@@ -30,12 +30,13 @@ const SubSidebarHeader = styled.div`
   align-items: center;
   justify-content: ${({ isOpen }) => (isOpen ? 'space-between' : 'center')};
   height: 64px;
+  min-width: 0;
 `;
 
 const ActionButton = styled.button`
   background: transparent;
   border: none;
-  font-size: 1rem;
+  font-size: 0.75rem;
   cursor: pointer;
   display: flex;
   gap: 0.25rem;
@@ -51,7 +52,7 @@ const HistoryButton = styled(ActionButton)`
 `;
 
 const HeaderTitle = styled.h2`
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   background-color: ${({ currentView }) => currentView === 'nav' ? '#fff' : '#181818'};
   color: ${({ currentView }) => currentView === 'nav' ? '#000' : '#fff'};
@@ -63,13 +64,16 @@ const HeaderTitle = styled.h2`
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: ${({ isOpen }) => (isOpen ? '0.5rem 1rem' : '0')};
+  padding: ${({ isOpen }) => (isOpen ? '0.5rem' : '0')};
   border: 1px solid ${({ currentView }) => currentView === 'nav' ? '#fff' : '#000'};
   border-radius: 25px;
   margin-right: ${({ isOpen }) => (isOpen ? '8px' : '0')};
   flex: 1;
   cursor: pointer;
   transition: all 0.2s;
+  min-width: 0;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 
   &:hover {
     background-color: ${({ currentView }) => currentView === 'nav' ? '#181818' : '#fff'};
@@ -91,7 +95,7 @@ const HeaderActions = styled.div`
 `;
 
 const ToggleButton = styled.button`
-  background: ${({ currentView }) => currentView === 'nav' ? '#181818' : '#fff'};
+  background: ${({ currentView }) => currentView === 'nav' ? '#181818' : 'transparent'};
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
@@ -119,7 +123,7 @@ const ContentContainer = styled.div`
   padding: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  height: calc(100vh - 128px);
+  height: 100%;
   width: ${({ isOpen }) => (isOpen ? 'auto' : '0')};
   flex: 1;
 `;

@@ -37,8 +37,10 @@ const MainContainer = styled.div`
 
 const ContentArea = styled.div`
   flex: 1;
-  background: #f9f9f9;
+  overflow-y: auto;
+  background: #fff;
   height: calc(100vh - 64px);
+  max-height: calc(100vh - 64px);  // ADD THIS LINE
   display: flex;
   flex-direction: column;
   position: relative;
@@ -55,7 +57,7 @@ const WORKFLOW_STEPS = {
 
 const ContentGenerator = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();  
+  const { isAuthenticated } = useAuth();
 
   // Workflow state
   const [currentStep, setCurrentStep] = useState(WORKFLOW_STEPS.YOUTUBE_SEARCH);
@@ -73,7 +75,7 @@ const ContentGenerator = () => {
 
   // Form state
   const [prompt, setPrompt] = useState('');
-  
+
   // Navigation state
   const [activeNavItem, setActiveNavItem] = useState('content-generator');
 
@@ -84,7 +86,7 @@ const ContentGenerator = () => {
       type: 'video',
       message: 'Fetching video information...'
     });
-    
+
     // Simulate API call to fetch video info
     setTimeout(() => {
       setSelectedVideo({
@@ -116,7 +118,7 @@ const ContentGenerator = () => {
       type: 'audio',
       message: 'Generating audio from your script...'
     });
-    
+
     // Simulate API call to generate audio
     setTimeout(() => {
       setLoadingState({
@@ -140,7 +142,7 @@ const ContentGenerator = () => {
       type: 'script',
       message: 'Generating script from your prompt....'
     });
-    
+
     // Simulate API call
     setTimeout(() => {
       setGeneratedScript(sampleScriptContent);
@@ -173,7 +175,7 @@ const ContentGenerator = () => {
       type: 'thumbnail',
       message: 'Generating thumbnails...'
     });
-    
+
     // Simulate API call
     setTimeout(() => {
       setLoadingState({
@@ -197,7 +199,7 @@ const ContentGenerator = () => {
       setSelectedVideo(null);
       setGeneratedScript('');
     }
-    
+
     setCurrentStep(step);
   };
 
@@ -207,7 +209,7 @@ const ContentGenerator = () => {
     // Add navigation logic here
     if (isAuthenticated) {
       if (route) {
-          navigate(route);
+        navigate(route);
       }
     } else {
       navigate('/login', { state: { from: { pathname: route || '/chat' } } });
@@ -229,28 +231,28 @@ const ContentGenerator = () => {
           historyContent: null,
           showHistoryToggle: false
         };
-        
+
       case WORKFLOW_STEPS.PROMPT_BASED_EDITOR:
         return {
           mainContent: <PromptForm onGenerate={handleGenerateScript} />,
           historyContent: <ScriptHistory onSelectScript={handleScriptSelect} activeScriptId={activeScriptId} />,
           showHistoryToggle: true
         };
-        
+
       case WORKFLOW_STEPS.AUDIO_GENERATION:
         return {
           mainContent: <AudioHistory onSelectAudio={handleAudioSelect} activeAudioId={activeAudioId} />,
           historyContent: null,
           showHistoryToggle: false
         };
-        
+
       case WORKFLOW_STEPS.THUMBNAIL_CREATION:
         return {
           mainContent: <ThumbnailSidebarContent onGenerate={handleGenerateThumbnail} />,
           historyContent: <ThumbnailHistory onSelectHistoryItem={handleThumbnailSelect} activeItemId={activeThumbnailId} />,
           showHistoryToggle: true
         };
-        
+
       default:
         return {
           mainContent: <ContentSearchHistory onSelectHistoryItem={handleHistoryItemClick} searchDummyData={searchDummyData} />,
@@ -269,19 +271,19 @@ const ContentGenerator = () => {
     switch (currentStep) {
       case WORKFLOW_STEPS.YOUTUBE_SEARCH:
         return (
-          <YouTubeSearch 
+          <YouTubeSearch
             onVideoSelect={handleVideoSelect}
             onHavePrompt={handleHavePrompt}
           />
         );
-        
+
       case WORKFLOW_STEPS.SCRIPT_GENERATION:
         return (
-          <ScriptingTranscribeScreen 
+          <ScriptingTranscribeScreen
             onGenerateAudio={handleGenerateAudio}
           />
         );
-        
+
       case WORKFLOW_STEPS.PROMPT_BASED_EDITOR:
         return (
           <PromptBasedEditor
@@ -289,17 +291,17 @@ const ContentGenerator = () => {
             initialContent={generatedScript}
           />
         );
-        
+
       case WORKFLOW_STEPS.AUDIO_GENERATION:
         return (
-          <GenerateAudio 
+          <GenerateAudio
             onNext={handleNextFromAudio}
           />
         );
-        
+
       case WORKFLOW_STEPS.THUMBNAIL_CREATION:
         return (
-          <ThumbnailGenerationContent 
+          <ThumbnailGenerationContent
             prompt={thumbnailFormData?.prompt || ''}
             selectedRatio={thumbnailFormData?.selectedRatio || '16:9'}
             language={thumbnailFormData?.language || '10'}
@@ -308,7 +310,7 @@ const ContentGenerator = () => {
             showInitialModal={false}
           />
         );
-        
+
       default:
         return null;
     }
@@ -326,11 +328,11 @@ const ContentGenerator = () => {
           showHistoryToggle={sidebarContent.showHistoryToggle}
           historyContent={sidebarContent.historyContent}
         />
-        
+
         <ContentArea>
-          <WorkflowHeader 
-            currentStep={currentStep} 
-            onStepClick={handleStepClick} 
+          <WorkflowHeader
+            currentStep={currentStep}
+            onStepClick={handleStepClick}
           />
           {renderContent()}
         </ContentArea>

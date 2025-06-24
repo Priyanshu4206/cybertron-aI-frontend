@@ -31,12 +31,12 @@ const APP_STATES = {
   SUCCESS: 'SUCCESS'
 };
 
-const ThumbnailGenerationContent = ({ 
-  prompt, 
-  selectedRatio, 
-  language, 
-  type, 
-  style, 
+const ThumbnailGenerationContent = ({
+  prompt,
+  selectedRatio,
+  language,
+  type,
+  style,
   onAppStateChange,
   showInitialModal = false // New prop to control initial modal display
 }) => {
@@ -49,7 +49,7 @@ const ThumbnailGenerationContent = ({
   // Generation state
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState([]);
-  
+
   // Selection state
   const [selectedImages, setSelectedImages] = useState([]);
   const [downloadMode, setDownloadMode] = useState('none');
@@ -66,7 +66,7 @@ const ThumbnailGenerationContent = ({
     setPreviousAppState(APP_STATES.NORMAL);
     setAppState(APP_STATES.MODEL_FORM);
   };
-  
+
   // Handle header button clicks
   const handleCloneModelClick = () => {
     // Save current state before transitioning
@@ -75,7 +75,7 @@ const ThumbnailGenerationContent = ({
       setAppState(APP_STATES.INITIAL_MODAL);
     }
   };
-  
+
   const handleModelSettingsClick = () => {
     console.log('Model Settings clicked - functionality to be implemented');
   };
@@ -83,11 +83,11 @@ const ThumbnailGenerationContent = ({
   // Handle model form submission
   const handleModelFormSubmit = (formData) => {
     setAppState(APP_STATES.LOADING);
-    
+
     // Simulate API call with timeout
     setTimeout(() => {
       setIsProcessingComplete(true);
-      
+
       // Add the new model to the list
       const newModel = {
         id: `model-${Date.now()}`,
@@ -95,11 +95,11 @@ const ThumbnailGenerationContent = ({
         createdAt: new Date().toISOString(),
         imageCount: formData.images.length
       };
-      
+
       setModels(prev => [...prev, newModel]);
     }, 6000); // Simulate a 6-second processing time
   };
-  
+
   // Handle back button in model form
   const handleModelFormBack = () => {
     setAppState(previousAppState);
@@ -114,24 +114,24 @@ const ThumbnailGenerationContent = ({
   // Generate images function
   const handleGenerate = () => {
     if (!prompt || !prompt.trim()) return;
-    
+
     setIsGenerating(true);
     setLastProcessedPrompt(prompt);
-    
+
     // Simulate API call with timeout
     setTimeout(() => {
       const images = Array(4).fill(0).map((_, i) => ({
         id: `img-${Date.now()}-${i}`,
         url: `https://picsum.photos/seed/${Date.now() + i}/600/600`,
-        alt: `Generated image ${i+1} based on prompt: ${prompt}`,
+        alt: `Generated image ${i + 1} based on prompt: ${prompt}`,
         prompt: prompt,
         settings: { ratio: selectedRatio, language, type, style }
       }));
-      
+
       setGeneratedImages(images);
       setSelectedImages([]);
       setIsGenerating(false);
-      
+
       // Ensure we're in NORMAL state to display the results
       if (appState !== APP_STATES.NORMAL) {
         setAppState(APP_STATES.NORMAL);
@@ -142,13 +142,13 @@ const ThumbnailGenerationContent = ({
   // Image selection functions
   const handleSelectImage = (imageId) => {
     setSelectedImages(prev => {
-      const newSelection = prev.includes(imageId) 
+      const newSelection = prev.includes(imageId)
         ? prev.filter(id => id !== imageId)
         : [...prev, imageId];
-      
+
       // Update selectAll state based on selection count
       const allSelected = newSelection.length === generatedImages.length;
-      
+
       // Update downloadMode based on selection
       if (newSelection.length === 0) {
         // No images selected - no radio button should be active
@@ -160,7 +160,7 @@ const ThumbnailGenerationContent = ({
         // Some images selected - set to 'selected' mode
         setDownloadMode('selected');
       }
-      
+
       return newSelection;
     });
   };
@@ -171,14 +171,14 @@ const ThumbnailGenerationContent = ({
       const response = await fetch(imageUrl);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      
+
       const link = document.createElement('a');
       link.href = url;
       link.download = `generated-image-${Date.now()}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       // Clean up the object URL
       window.URL.revokeObjectURL(url);
     } catch (error) {
@@ -186,7 +186,7 @@ const ThumbnailGenerationContent = ({
       // Fallback: open in new tab
       window.open(imageUrl, '_blank');
     }
-  };  
+  };
 
   const handleDownloadModeChange = (mode) => {
     // Only handle 'all' mode (selected mode is read-only)
@@ -204,15 +204,15 @@ const ThumbnailGenerationContent = ({
     }
     // Note: 'selected' mode is now read-only and controlled by individual selections
   };
-  
+
   const handleDownloadSelected = async () => {
     // Don't allow download if no mode is active
     if (downloadMode === 'none') return;
-    
-    const imagesToDownload = downloadMode === 'all' 
-      ? generatedImages 
+
+    const imagesToDownload = downloadMode === 'all'
+      ? generatedImages
       : generatedImages.filter(img => selectedImages.includes(img.id));
-        
+
     imagesToDownload.forEach((image, index) => {
       setTimeout(() => handleDownloadImage(image.url), 100 * index);
     });
@@ -222,61 +222,68 @@ const ThumbnailGenerationContent = ({
   useEffect(() => {
     // Only generate if we have a prompt and it's different from the last one we processed
     if (prompt && prompt.trim() && prompt !== lastProcessedPrompt) {
-      // Only auto-generate in NORMAL state to avoid conflicts with modals
-      if (appState === APP_STATES.NORMAL) {
+      // If in INITIAL_MODAL, switch to NORMAL before generating
+      if (appState === APP_STATES.INITIAL_MODAL) {
+        setAppState(APP_STATES.NORMAL);
+        // Defer generation until state updates
+        // Use a timeout to ensure state is updated before generating
+        setTimeout(() => {
+          handleGenerate();
+        }, 0);
+      } else if (appState === APP_STATES.NORMAL) {
         handleGenerate();
       }
     }
   }, [prompt, appState]);
-  
+
   // Notify parent about app state changes that affect centering
   useEffect(() => {
     const shouldCenterContent = [
-      APP_STATES.INITIAL_MODAL, 
-      APP_STATES.LOADING, 
+      APP_STATES.INITIAL_MODAL,
+      APP_STATES.LOADING,
       APP_STATES.SUCCESS
     ].includes(appState);
-    
+
     if (onAppStateChange) {
       onAppStateChange(shouldCenterContent);
     }
   }, [appState, onAppStateChange]);
-  
+
   // Render content based on app state
   const renderContent = () => {
     switch (appState) {
       case APP_STATES.INITIAL_MODAL:
         return (
-          <CloneModelModal 
-            onClose={handleCloseModal} 
-            onProceed={handleProceedToModelCreation} 
+          <CloneModelModal
+            onClose={handleCloseModal}
+            onProceed={handleProceedToModelCreation}
           />
         );
-        
+
       case APP_STATES.MODEL_FORM:
         return (
-          <ModelCreationForm 
+          <ModelCreationForm
             onBack={handleModelFormBack}
             onSubmit={handleModelFormSubmit}
           />
         );
-        
+
       case APP_STATES.LOADING:
         return (
-          <ProgressLoader 
+          <ProgressLoader
             title="Working on it..."
             isComplete={isProcessingComplete}
             onComplete={() => setAppState(APP_STATES.SUCCESS)}
           />
         );
-        
+
       case APP_STATES.SUCCESS:
         return (
-          <SuccessMessage 
+          <SuccessMessage
             onDismiss={handleSuccessDismiss}
           />
         );
-        
+
       case APP_STATES.NORMAL:
       default:
         if (isGenerating) {
@@ -284,7 +291,7 @@ const ThumbnailGenerationContent = ({
         } else if (generatedImages.length > 0) {
           return (
             <>
-              <ThumbnailHeader 
+              <ThumbnailHeader
                 onCloneModelClick={handleCloneModelClick}
                 onModelSettingsClick={handleModelSettingsClick}
               />
@@ -294,7 +301,7 @@ const ThumbnailGenerationContent = ({
                 onSelectImage={handleSelectImage}
                 onDownloadImage={handleDownloadImage}
               />
-              
+
               <ImageActionsBar
                 selectedImages={selectedImages}
                 totalImages={generatedImages.length}
@@ -307,13 +314,13 @@ const ThumbnailGenerationContent = ({
         } else {
           return (
             <>
-              <ThumbnailHeader 
+              <ThumbnailHeader
                 onCloneModelClick={handleCloneModelClick}
                 onModelSettingsClick={handleModelSettingsClick}
               />
-              <EmptyState 
-                title="Create Stunning Thumbnails" 
-                description="Generate eye-catching YouTube thumbnails with AI. Use the sidebar to customize your settings and start creating." 
+              <EmptyState
+                title="Create Stunning Thumbnails"
+                description="Generate eye-catching YouTube thumbnails with AI. Use the sidebar to customize your settings and start creating."
               />
             </>
           );
@@ -323,13 +330,13 @@ const ThumbnailGenerationContent = ({
 
   // Determine if content should be centered
   const shouldCenterContent = [
-    APP_STATES.INITIAL_MODAL, 
-    APP_STATES.LOADING, 
+    APP_STATES.INITIAL_MODAL,
+    APP_STATES.LOADING,
     APP_STATES.SUCCESS
   ].includes(appState);
 
   return (
-    <ContentContainer style={{ 
+    <ContentContainer style={{
       justifyContent: shouldCenterContent ? 'center' : 'space-between',
       alignItems: shouldCenterContent ? 'center' : 'stretch'
     }}>

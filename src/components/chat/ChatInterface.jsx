@@ -10,7 +10,7 @@ import ChatMessage from './ChatMessage';
 const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 182px); /* Adjust for header and input area */
+  height: calc(100vh - 200px); /* Adjust for header and input area */
   background-color: #fff;
   opacity: ${({ isChatActive }) => isChatActive ? 1 : 0};
   transition: opacity 0.3s ease;

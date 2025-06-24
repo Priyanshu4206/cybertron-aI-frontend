@@ -53,6 +53,7 @@ export const authService = {
       mutation Register($input: UserRegistrationInput!) {
         register(input: $input) {
           user {
+            firebaseUid
             email
             phoneNumber
             displayName
@@ -67,6 +68,7 @@ export const authService = {
             createdAt
           }
           requiresOTP
+          token
         }
       }
     `;
@@ -80,6 +82,7 @@ export const authService = {
         exchangeFirebaseToken(token: $token) {
           token
           user {
+            firebaseUid
             email
             displayName
             phoneNumber
@@ -98,6 +101,7 @@ export const authService = {
       mutation Login($input: UserLoginInput!) {
         login(input: $input) {
           user {
+            firebaseUid
             email
             phoneNumber
             displayName
@@ -121,6 +125,7 @@ export const authService = {
           message
           token
           user {
+            firebaseUid
             email
             phoneNumber
             displayName
@@ -169,6 +174,7 @@ export const authService = {
     const query = `
       query Me {
         me {
+          firebaseUid
           email
           phoneNumber
           displayName
@@ -203,6 +209,68 @@ export const authService = {
       }
     `;
     return graphqlRequest(mutation, { displayName }, true);
+  },
+
+  // Create initial user (for Google sign-up)
+  createInitialUser: async (userData) => {
+    const mutation = `
+      mutation CreateInitialUser($input: InitialUserInput!) {
+        createInitialUser(input: $input) {
+          user {
+            email
+            firebaseUid
+            displayName
+          }
+          token
+          requiresOTP
+          isProfileComplete
+        }
+      }
+    `;
+    return graphqlRequest(mutation, { input: userData });
+  },
+
+  // Complete profile (after onboarding)
+  completeProfile: async (profileData) => {
+    const mutation = `
+      mutation CompleteProfile($input: ProfileCompletionInput!) {
+        completeProfile(input: $input) {
+          user {
+            email
+            firebaseUid
+            displayName
+            occupation
+            occupationDescription
+            accountPurposes
+            accountType
+            selectedPlan
+            planDuration
+          }
+          isProfileComplete
+        }
+      }
+    `;
+    return graphqlRequest(mutation, { input: profileData });
+  },
+
+  // Request password reset
+  requestPasswordReset: async (email, phoneNumber) => {
+    const mutation = `
+      mutation RequestPasswordReset($input: RequestPasswordResetInput!) {
+        requestPasswordReset(input: $input)
+      }
+    `;
+    return graphqlRequest(mutation, { input: { email, phoneNumber } });
+  },
+
+  // Reset password
+  resetPassword: async (email, phoneNumber, otpCode, newPassword) => {
+    const mutation = `
+      mutation ResetPassword($input: ResetPasswordInput!) {
+        resetPassword(input: $input)
+      }
+    `;
+    return graphqlRequest(mutation, { input: { email, phoneNumber, otpCode, newPassword } });
   },
 };
 

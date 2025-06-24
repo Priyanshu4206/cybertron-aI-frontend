@@ -112,7 +112,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       const firebaseResult = await firebaseService.signInWithGoogle();
-      console.log("Result is: ", firebaseResult);
+      // console.log("Result is: ", firebaseResult);
 
       if (!firebaseResult.success) {
         console.log("Error is: ", firebaseResult.error?.message || "Unknown error");
@@ -121,43 +121,32 @@ export const AuthProvider = ({ children }) => {
 
       const { user: firebaseUser, isNewUser } = firebaseResult;
 
-      // If new user, redirect to onboarding
       if (isNewUser) {
         const userData = {
           firebaseUid: firebaseUser.uid,
           email: firebaseUser.email,
           fullName: firebaseUser.displayName,
+          phoneNumber: firebaseUser.phoneNumber || undefined,
         };
-
-        // Save user data for onboarding
-        setUser(userData);
-        console.log("New user is: ", userData);
-
+        // Immediately create initial user in DB
+        const initialUserResp = await authService.createInitialUser(userData);
+        if (initialUserResp.success && initialUserResp.data.createInitialUser) {
+          setUser(initialUserResp.data.createInitialUser.user);
+          localStorage.setItem('auth_token', initialUserResp.data.createInitialUser.token);
+          localStorage.setItem('user_data', JSON.stringify(initialUserResp.data.createInitialUser.user));
+        } else {
+          setUser(userData);
+        }
+        // console.log("New user is: ", userData);
         return { success: true, isNewUser: true };
       }
       // Existing user, get token from our backend
       else {
         try {
-          // // For now, we'll use a mock token since the backend endpoint might not exist yet
-          // // In a real implementation, you'd use the exchangeFirebaseToken service
-          // console.log("Existing user, getting token for:", firebaseUser.email);
-
-          // // Temporary solution: Store mock token until backend endpoint is ready
-          // const mockToken = 'mock_jwt_token_' + Date.now();
-          // localStorage.setItem('auth_token', mockToken);
-
-          // In production, replace with:
-
-          // Get the Firebase ID token
           const idToken = await firebaseUser.getIdToken();
-
-          // Exchange Firebase token for your system's token
           const exchangeResponse = await authService.exchangeFirebaseToken(idToken);
-
           if (exchangeResponse.success && exchangeResponse.data.exchangeFirebaseToken?.token) {
             localStorage.setItem('auth_token', exchangeResponse.data.exchangeFirebaseToken.token);
-
-            // Use the user data from the response if available
             const apiUserData = exchangeResponse.data.exchangeFirebaseToken.user;
             if (apiUserData) {
               setUser(apiUserData);
@@ -169,20 +158,6 @@ export const AuthProvider = ({ children }) => {
             console.error("Failed to exchange token:", exchangeResponse.error);
             return { success: false, error: "Authentication failed" };
           }
-
-          // // Use Firebase user data temporarily
-          // const userData = {
-          //   id: firebaseUser.uid,
-          //   email: firebaseUser.email,
-          //   displayName: firebaseUser.displayName,
-          //   photoURL: firebaseUser.photoURL,
-          // };
-
-          // localStorage.setItem('user_data', JSON.stringify(userData));
-          // setUser(userData);
-          // setIsAuthenticated(true);
-          // return { success: true };
-
         } catch (error) {
           console.error("Token exchange error:", error);
           return { success: false, error: "Failed to authenticate with the server" };
@@ -191,6 +166,56 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Google login failed:', error);
       return { success: false, error: 'Google login failed. Please try again.' };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Complete Google profile after onboarding
+  const completeGoogleProfile = async (profileData) => {
+    try {
+      setLoading(true);
+      const response = await authService.completeProfile(profileData);
+      if (response.success && response.data.completeProfile) {
+        setUser(response.data.completeProfile.user);
+        setIsAuthenticated(true);
+        localStorage.setItem('user_data', JSON.stringify(response.data.completeProfile.user));
+        return { success: true };
+      }
+      return { success: false, error: response.error || 'Failed to complete profile.' };
+    } catch (error) {
+      return { success: false, error: 'Failed to complete profile. Please try again.' };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Password reset/request OTP logic
+  const requestPasswordReset = async (email, phoneNumber) => {
+    setLoading(true);
+    try {
+      const response = await authService.requestPasswordReset(email, phoneNumber);
+      if (response.success && response.data.requestPasswordReset) {
+        return { success: true };
+      }
+      return { success: false, error: response.error || 'Failed to request password reset.' };
+    } catch (error) {
+      return { success: false, error: 'Failed to request password reset.' };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetPassword = async (email, phoneNumber, otpCode, newPassword) => {
+    setLoading(true);
+    try {
+      const response = await authService.resetPassword(email, phoneNumber, otpCode, newPassword);
+      if (response.success && response.data.resetPassword) {
+        return { success: true };
+      }
+      return { success: false, error: response.error || 'Failed to reset password.' };
+    } catch (error) {
+      return { success: false, error: 'Failed to reset password.' };
     } finally {
       setLoading(false);
     }
@@ -218,7 +243,7 @@ export const AuthProvider = ({ children }) => {
 
       // Call register API
       const response = await authService.register(registrationInput);
-
+      // console.log("Response Recienved after registration: ", response);
       if (response.success) {
         // Store user data
         setUser(response.data.register.user);
@@ -366,34 +391,88 @@ export const AuthProvider = ({ children }) => {
       }
 
       // Create complete registration data
+      // Ensure Google user data is preserved and not overwritten by onboarding data
       const registrationData = {
         firebaseUid: user.firebaseUid,
         email: user.email,
         fullName: user.fullName,
-        ...additionalData
+        // Only include onboarding fields, don't let them overwrite core user data
+        password: additionalData.password || '',
+        phoneNumber: additionalData.phoneNumber || '',
+        occupation: additionalData.occupation,
+        occupationDescription: additionalData.occupationDescription,
+        accountPurposes: additionalData.accountPurposes,
+        accountType: additionalData.accountType,
+        selectedPlan: additionalData.selectedPlan,
+        planDuration: additionalData.planDuration
       };
 
-      // In a real app, call your API to store this additional data
-      // For now, we'll mock a successful response
+      // console.log("Complete Google Registration - User from context:", user);
+      // console.log("Complete Google Registration - Registration data being sent:", registrationData);
 
-      // Mock response
-      const mockToken = 'mock_jwt_token_' + Date.now();
-      const completeUserData = {
-        ...user,
-        ...additionalData
-      };
+      // Call backend to complete registration
+      const response = await authService.register(registrationData);
 
-      // Save to local storage
-      localStorage.setItem('auth_token', mockToken);
-      localStorage.setItem('user_data', JSON.stringify(completeUserData));
-
-      // Update state
-      setUser(completeUserData);
-      setIsAuthenticated(true);
-
-      return { success: true };
+      if (response.success && response.data.register) {
+        const { user: registeredUser, token, requiresOTP } = response.data.register;
+        if (requiresOTP) {
+          // Should not happen for Google, but handle just in case
+          setUser(registeredUser);
+          return { success: true, requiresOTP: true };
+        }
+        // Store token and user data
+        if (token) {
+          localStorage.setItem('auth_token', token);
+        }
+        localStorage.setItem('user_data', JSON.stringify(registeredUser));
+        setUser(registeredUser);
+        setIsAuthenticated(true);
+        return { success: true };
+      }
+      return { success: false, error: response.error || 'Failed to complete registration.' };
     } catch (error) {
       return { success: false, error: 'Failed to complete registration. Please try again.' };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Complete profile for normal (non-Google) users after onboarding
+  const completeProfile = async (profileData) => {
+    try {
+      setLoading(true);
+      // Check if we have user data
+      if (!user || !user.firebaseUid) {
+        // console.log(user);
+        return { success: false, error: 'Missing user data.' };
+      }
+      // Prepare data for backend
+      const profileInput = {
+        firebaseUid: user.firebaseUid,
+        fullName: user.fullName || user.displayName,
+        email: user.email,
+        phoneNumber: profileData.phoneNumber || user.phoneNumber || '',
+        occupation: profileData.occupation,
+        occupationDescription: profileData.occupationDescription,
+        accountPurposes: profileData.accountPurposes,
+        accountType: profileData.accountType,
+        selectedPlan: profileData.selectedPlan,
+        planDuration: profileData.planDuration
+      };
+      // console.log("Profile Input: ", profileInput);
+      // Call backend to complete profile
+      const response = await authService.completeProfile(profileInput);
+      if (response.success !== false && response.data && response.data.completeProfile) {
+        const { user: updatedUser } = response.data.completeProfile;
+        localStorage.setItem('user_data', JSON.stringify(updatedUser));
+        setUser(updatedUser);
+        setIsAuthenticated(true);
+        return { success: true };
+      }
+      // console.log("Response: ", response);
+      return { success: false, error: response.error || 'Failed to complete profile.' };
+    } catch (error) {
+      return { success: false, error: 'Failed to complete profile. Please try again.' };
     } finally {
       setLoading(false);
     }
@@ -428,6 +507,10 @@ export const AuthProvider = ({ children }) => {
     verifyOTP,
     resendOTP,
     completeGoogleRegistration,
+    completeGoogleProfile,
+    requestPasswordReset,
+    resetPassword,
+    completeProfile,
     formState,
     saveFormState,
     clearFormState

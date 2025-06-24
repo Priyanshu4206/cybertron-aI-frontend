@@ -21,6 +21,7 @@ const AskBoxContainer = styled.div`
   align-items: center;
   transition: all 0.5s ease;
   margin: 0 auto;
+  padding-top: 0;
 
   ${({ isChatActive, isFixed }) => isChatActive && isFixed && `
     position: sticky;
@@ -47,14 +48,21 @@ const AskInputRow = styled.div`
   gap: 1rem;
 `;
 
-const AskInput = styled.input`
+const AskInput = styled.textarea`
   flex: 1;
   border: none;
   background: transparent;
   font-size: 1rem;
+  max-height: 200px;
+  border-radius: 12px;
+  background: transparent;
+  color: #333;
   padding: 0.5rem 0.5rem;
   outline: none;
   color: #333;
+  resize: none;
+  outline: none;
+  width: 100%;
   
   &::placeholder {
     color: #999;

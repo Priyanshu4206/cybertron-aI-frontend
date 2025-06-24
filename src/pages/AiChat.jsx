@@ -14,15 +14,17 @@ import ChatInterface from '../components/chat/ChatInterface';
 import AskBox from '../components/chat/AskBox';
 import { mainTools } from '../utils/dummyData';
 import { BiExpandAlt } from 'react-icons/bi';
+import CustomLayout from '../components/layout/CustomLayout';
 
 const HomeContainer = styled.div`
   display: ${({ isChatActive }) => isChatActive ? 'none' : 'flex'};
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 100%;
   position: relative;
-  min-height: ${({ isChatActive }) => isChatActive ? 'calc(100vh - 64px)' : 'auto'};
+  flex: 1;
+  width: 100%;
+  align-self: stretch;
   padding: ${({ isChatActive }) => isChatActive ? '0' : '1.5rem'};
 
   @media screen and (max-width: 450px){
@@ -54,7 +56,7 @@ const Title = styled.h1`
   font-weight: 500;
   color: #000;
 
-  @media (max-width: 768px) {
+  @media screen and (max-width: 768px) {
     font-size: 2rem;
   }
   
@@ -66,33 +68,47 @@ const Title = styled.h1`
 
 const ToolGrid = styled.div`
   display: ${({ isChatActive }) => isChatActive ? 'none' : 'grid'};
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 1rem;
   padding: 1rem;
-  margin: 2rem 0 1.5rem 0;
   width: 100%;
   max-width: 900px;
   transition: all 0.5s ease;
-  overflow: hidden;
   opacity: ${({ isChatActive }) => isChatActive ? 0 : 1};
   height: ${({ isChatActive }) => isChatActive ? 0 : 'auto'};
+
+  @media screen and (max-width: 768px) {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  @media screen and (max-width: 450px) {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.75rem;
+  }
 `;
 
+
 const ToolCard = styled.div`
-  background: #eeee;
+  background: #eee;
   border-radius: 8px;
-  padding: 0.75rem;
+  padding: 0.5rem;
   display: flex;
+  justify-content: center;
   align-items: center;
+  text-align: center;
   gap: 0.5rem;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 500;
   box-shadow: 0 1px 6px rgba(0,0,0,0.1);
   cursor: pointer;
-  min-width: 180px;
   transition: transform 0.15s;
-  text-align: center;
   color: #333;
+  min-height: 60px;
+  width: 100%;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+  }
 
   &:hover {
     transform: translateY(-3px) scale(1.03);
@@ -259,6 +275,10 @@ const AiChat = () => {
   const handleNewChat = () => {
     if (chatInterfaceRef.current) {
       chatInterfaceRef.current.resetChat();
+      if (isSubSidebarOpen && isMobileView) {
+        toggleSubSidebar();
+      }
+      setIsChatActive(false);
       setActiveConversationId(null);
     }
   };
@@ -268,6 +288,10 @@ const AiChat = () => {
     if (chatInterfaceRef.current && conversationId) {
       chatInterfaceRef.current.loadChatById(conversationId);
       setActiveConversationId(conversationId);
+      // console.log("Clicking History", isSubSidebarOpen, isMobileView);
+      if (isSubSidebarOpen && isMobileView) {
+        toggleSubSidebar();
+      }
       setIsChatActive(true); // Show chat interface when selecting conversation
     }
   };
@@ -299,7 +323,7 @@ const AiChat = () => {
   };
 
   return (
-    <Layout title="Chat">
+    <CustomLayout>
       {isMobileView && isSubSidebarOpen && (
         <MobileOverlay
           isVisible={true}
@@ -307,8 +331,25 @@ const AiChat = () => {
           data-testid="mobile-overlay"
         />
       )}
+      {isMobileView && <SidebarContainer>
+        <SubSidebar
+          contextName="Chat with AI"
+          mainContent={
+            <ChatHistory
+              onNewChat={handleNewChat}
+              activeChatId={activeConversationId}
+              onHistoryItemClick={handleConversationClick}
+            />
+          }
+          navigationContent={<NavigationList activeItem={activeNavItem} onSelectItem={handleNavItemClick} />}
+          showHistoryToggle={false}
+        />
+      </SidebarContainer>
+      }
+
+      {/* Chat Interface Container */}
       <MainContainer isChatActive={isChatActive}>
-        <SidebarContainer>
+        {!isMobileView && <SidebarContainer>
           <SubSidebar
             contextName="Chat with AI"
             mainContent={
@@ -322,7 +363,7 @@ const AiChat = () => {
             showHistoryToggle={false}
           />
         </SidebarContainer>
-
+        }
         <ContentArea>
           <ChatContent isChatActive={isChatActive}>
             <ChatInterface ref={chatInterfaceRef} />
@@ -336,7 +377,8 @@ const AiChat = () => {
           </ChatContent>
         </ContentArea>
       </MainContainer>
-      <HomeContainer isChatActive={isChatActive}>
+
+      <HomeContainer className='home-wrapper' isChatActive={isChatActive}>
         <FlexRow isChatActive={isChatActive}>
           <Logo src="/logo/logo-black-no-bg.png" alt="Cybertron.ai logo" />
           <Title>Cybertron.ai</Title>
@@ -347,9 +389,10 @@ const AiChat = () => {
           isFixed={false}
         />
 
-        <ToolGrid isChatActive={isChatActive}>
+        <ToolGrid isChatActive={isChatActive} isMobileView={isMobileView}>
           {mainTools.map((tool, idx) => (
             <ToolCard
+              isMobileView={isMobileView}
               key={`${tool.name}-${idx}`}
               color={tool.color}
               onClick={() => handleToolClick(tool.route)}
@@ -371,7 +414,7 @@ const AiChat = () => {
           product by <strong>ZooQ inc.</strong>
         </ProductBy>
       </HomeContainer>
-    </Layout>
+    </CustomLayout>
   );
 };
 

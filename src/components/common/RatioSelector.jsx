@@ -7,7 +7,7 @@ const RatioContainer = styled.div`
 
 const RatioTitle = styled.div`
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: #111827;
   margin-bottom: 8px;
 `;
@@ -21,7 +21,7 @@ const RatioOptions = styled.div`
 const RatioOption = styled.label`
   display: flex;
   align-items: center;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   gap: 4px;
   padding: 4px 16px;
   border-radius: 4px;
@@ -47,12 +47,12 @@ const RatioSelector = ({ selectedRatio, setSelectedRatio, options = [] }) => {
       <RatioOptions>
         {options.map((option) => (
           <RatioOption key={option.value} selected={selectedRatio === option.value}>
-            <input 
-              type="radio" 
-              name="ratio" 
-              value={option.value} 
-              checked={selectedRatio === option.value} 
-              onChange={() => setSelectedRatio(option.value)} 
+            <input
+              type="radio"
+              name="ratio"
+              value={option.value}
+              checked={selectedRatio === option.value}
+              onChange={() => setSelectedRatio(option.value)}
             />
             {option.label}
           </RatioOption>

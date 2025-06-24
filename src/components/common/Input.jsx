@@ -4,7 +4,7 @@ import styled, { css } from 'styled-components';
 const InputContainer = styled.div`
   position: relative;
   width: 100%;
-  margin-bottom: 1rem;
+  margin-bottom: ${(mb) => mb};
 `;
 
 const StyledInput = styled.input`
@@ -13,7 +13,7 @@ const StyledInput = styled.input`
     size === 'small' ? '0.5rem 0.75rem' :
       size === 'large' ? '0.75rem 1rem' :
         '0.625rem 0.875rem'};
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   border-radius: 8px;
   border: 1px solid ${({ error }) => error ? '#e53e3e' : '#d1d5db'};
   background-color: #ffffff;
@@ -48,7 +48,7 @@ const StyledInput = styled.input`
 const Label = styled.label`
   display: block;
   margin-bottom: 0.375rem;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: #333333;
   
@@ -70,7 +70,7 @@ const ErrorMessage = styled.div`
 
 const HelperText = styled.div`
   color: #6b7280;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   margin-top: 0.25rem;
 `;
 
@@ -99,11 +99,13 @@ const Input = forwardRef(({
   helperText,
   leftIcon,
   rightIcon,
+  checks = true,
   size = 'medium',
+  mb = "1rem",
   ...props
 }, ref) => {
   return (
-    <InputContainer>
+    <InputContainer mb={mb}>
       {label && (
         <Label htmlFor={props.id}>
           {label}
@@ -133,7 +135,7 @@ const Input = forwardRef(({
       )}
 
       {helperText && !error && <HelperText>{helperText}</HelperText>}
-      <ErrorMessage show={!!error}>{error || ''}</ErrorMessage>
+      {checks && <ErrorMessage show={!!error}>{error || ''}</ErrorMessage>}
     </InputContainer>
   );
 });

@@ -23,7 +23,7 @@ const FormGroup = styled.div`
 
 const Label = styled.label`
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: #111827;
   
   .required {
@@ -34,32 +34,25 @@ const Label = styled.label`
 
 const CharCount = styled.div`
   text-align: right;
-  font-size: 12px;
+  font-size: 10px;
   color: ${props => props.count > 2000 ? 'red' : '#666'};
 `;
 
 const SettingsContainer = styled.div`
-  background: #f9f9f9;
-  border: 1px solid #e0e0e0;
   border-radius: 8px;
-  padding: 16px;
 `;
 
 const SettingsTitle = styled.h4`
   margin: 0 0 12px 0;
-  font-size: 14px;
+  font-size: 0.8rem;
   font-weight: 600;
   color: #333;
 `;
 
 const SelectorsRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
 `;
 
 const Selector = styled.select`
@@ -70,7 +63,7 @@ const Selector = styled.select`
   min-width: 100px;
   flex: 1;
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: #111827;
   cursor: pointer;
 
@@ -111,36 +104,36 @@ const PromptForm = ({ onGenerate }) => {
   const [selectedScriptType, setSelectedScriptType] = useState('educational');
   const [selectedIndustry, setSelectedIndustry] = useState('general');
   const [isGenerating, setIsGenerating] = useState(false);
-  
+
   const handleKeywordListChange = (e) => {
     setKeywordsList(e.target.value);
   };
-  
+
   const handleReferenceLinkChange = (e) => {
     setReferenceLink(e.target.value);
   };
-  
+
   const handleLanguageChange = (e) => {
     setSelectedLanguage(e.target.value);
   };
-  
+
   const handleScriptTypeChange = (e) => {
     setSelectedScriptType(e.target.value);
   };
-  
+
   const handleIndustryChange = (e) => {
     setSelectedIndustry(e.target.value);
   };
-  
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!prompt.trim()) {
       return;
     }
-    
+
     setIsGenerating(true);
-    
+
     // In a real app, this would call an API
     setTimeout(() => {
       onGenerate({
@@ -154,7 +147,7 @@ const PromptForm = ({ onGenerate }) => {
       setIsGenerating(false);
     }, 1500);
   };
-  
+
   return (
     <FormContainer>
       <PromptInput
@@ -173,13 +166,13 @@ const PromptForm = ({ onGenerate }) => {
           placeholder="Enter keywords separated by commas..."
           value={keywordsList}
           onChange={handleKeywordListChange}
-          style={{fontSize: '0.9rem'}}
+          style={{ fontSize: '0.9rem' }}
         />
         <CharCount count={keywordsList.length}>
           {keywordsList.length}/1000
         </CharCount>
       </FormGroup>
-      
+
       <FormGroup>
         <Label htmlFor="referenceLink">Add Reference Youtube Link</Label>
         <Input
@@ -189,7 +182,7 @@ const PromptForm = ({ onGenerate }) => {
           placeholder="Add Reference Youtube Link here..."
           value={referenceLink}
           onChange={handleReferenceLinkChange}
-          style={{fontSize: '0.9rem'}}
+          style={{ fontSize: '0.9rem' }}
         />
         <CharCount count={referenceLink.length}>
           {referenceLink.length}/1000
@@ -199,9 +192,9 @@ const PromptForm = ({ onGenerate }) => {
       <SettingsContainer>
         <SettingsTitle>Language & Type & Industry</SettingsTitle>
         <SelectorsRow>
-          <Selector 
+          <Selector
             id="language"
-            value={selectedLanguage} 
+            value={selectedLanguage}
             onChange={handleLanguageChange}
           >
             {scriptLanguage && scriptLanguage.map(language => (
@@ -210,9 +203,9 @@ const PromptForm = ({ onGenerate }) => {
               </option>
             ))}
           </Selector>
-          <Selector 
+          <Selector
             id="scriptType"
-            value={selectedScriptType} 
+            value={selectedScriptType}
             onChange={handleScriptTypeChange}
           >
             {scriptType && scriptType.map(type => (
@@ -221,9 +214,9 @@ const PromptForm = ({ onGenerate }) => {
               </option>
             ))}
           </Selector>
-          <Selector 
+          <Selector
             id="industry"
-            value={selectedIndustry} 
+            value={selectedIndustry}
             onChange={handleIndustryChange}
           >
             {scriptIndustry && scriptIndustry.map(ind => (
@@ -235,7 +228,7 @@ const PromptForm = ({ onGenerate }) => {
         </SelectorsRow>
       </SettingsContainer>
 
-      <GenerateButton 
+      <GenerateButton
         onClick={handleSubmit}
         disabled={!prompt.trim() || isGenerating}
       >

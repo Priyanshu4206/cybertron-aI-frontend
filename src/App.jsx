@@ -8,6 +8,7 @@ import theme from './styles/theme';
 import SignUp from './pages/SignUp';
 import Login from './pages/Login';
 import OTP from './pages/OTP';
+import ForgotPassword from './pages/ForgotPassword';
 
 // Onboarding Pages
 import Onboarding from './pages/Onboarding';
@@ -100,13 +101,10 @@ function App() {
                   <Login />
                 </PublicOnlyRoute>
               } />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/otp" element={<OTP />} /> {/* Keep OTP accessible from both states */}
-
-              {/* Onboarding Routes - Public Only (redirect to /chat if already logged in) */}
               <Route path="/onboarding" element={
-                // <PublicOnlyRoute>
                 <Onboarding />
-                // </PublicOnlyRoute>
               } />
 
               {/* Main App Routes - Protected */}

@@ -9,6 +9,7 @@ import { sampleScriptContent, scriptHistory } from '../utils/scriptGeneratorData
 import NavigationList from '../components/navigation/NavigationList';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useUI } from '../context/UIContext';
 
 const MainContainer = styled.div`
   display: flex;
@@ -20,9 +21,13 @@ const ContentArea = styled.div`
   flex: 1;
   padding: 20px;
   overflow-y: auto;
-  background: #f9f9f9;
+  background: transparent;
   height: calc(100vh - 64px);
   position: relative;
+
+  @media screen and (max-width: 768px) {
+    padding: 0;
+  }
 `;
 
 const EditorContainer = styled.div`
@@ -88,12 +93,16 @@ const EmptyStateText = styled.p`
 
 const ScriptGenerator = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();  
+  const { isAuthenticated } = useAuth();
   const [activeNavItem, setActiveNavItem] = useState('script-writing');
   const [activeScriptId, setActiveScriptId] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedScript, setGeneratedScript] = useState('');
   const [currentTitle, setCurrentTitle] = useState('');
+
+  // SubSidebar Updates
+  const { isMobileView, isSubSidebarOpen, toggleSubSidebar } = useUI();
+
 
   // Handle navigation item selection
   const handleNavItemClick = (itemId, route) => {
@@ -101,13 +110,13 @@ const ScriptGenerator = () => {
     // Add navigation logic here
     if (isAuthenticated) {
       if (route) {
-          navigate(route);
+        navigate(route);
       }
-  } else {
+    } else {
       navigate('/login', { state: { from: { pathname: route || '/chat' } } });
-  }
+    }
   };
-  
+
   // Handle script selection from history
   const handleScriptSelect = (scriptId) => {
     setActiveScriptId(scriptId);
@@ -116,7 +125,7 @@ const ScriptGenerator = () => {
     if (selectedScript) {
       setIsGenerating(true);
       setCurrentTitle(selectedScript.title);
-      
+
       // Simulate API call to get full script content
       setTimeout(() => {
         setGeneratedScript(sampleScriptContent);
@@ -124,19 +133,23 @@ const ScriptGenerator = () => {
       }, 1000);
     }
   };
-  
+
   // Handle script generation
   const handleGenerateScript = (formData) => {
     setCurrentTitle(formData.title);
     setIsGenerating(true);
-    
+
+    if (isSubSidebarOpen && isMobileView) {
+      toggleSubSidebar();
+    }
+
     // Simulate API call
     setTimeout(() => {
       setGeneratedScript(sampleScriptContent);
       setIsGenerating(false);
     }, 2000);
   };
-  
+
   // Render main content based on navigation state
   const renderMainContent = () => {
     if (activeNavItem === 'new-script') {
@@ -148,7 +161,7 @@ const ScriptGenerator = () => {
       return <PromptForm onGenerate={handleGenerateScript} />;
     }
   };
-  
+
   // Render content area based on state
   const renderContentArea = () => {
     if (isGenerating) {
@@ -176,7 +189,7 @@ const ScriptGenerator = () => {
       );
     }
   };
-  
+
   return (
     <Layout title={currentTitle || "Script Generator"}>
       <MainContainer>
@@ -185,9 +198,10 @@ const ScriptGenerator = () => {
           mainContent={renderMainContent()}
           navigationContent={<NavigationList activeItem={activeNavItem} onSelectItem={handleNavItemClick} />}
           showHistoryToggle={true}
-          historyContent={<ScriptHistory onSelectScript={handleScriptSelect} activeScriptId={activeScriptId} />}
+          historyContent={<ScriptHistory
+            onSelectScript={handleScriptSelect} activeScriptId={activeScriptId} />}
         />
-        
+
         <ContentArea>
           {renderContentArea()}
         </ContentArea>

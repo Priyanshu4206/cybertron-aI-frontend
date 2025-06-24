@@ -1,9 +1,9 @@
 import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
-import { 
-  MdAttachFile, 
-  MdSend, 
-  MdKeyboardArrowDown, 
+import {
+  MdAttachFile,
+  MdSend,
+  MdKeyboardArrowDown,
   MdClose,
   MdImage
 } from 'react-icons/md';
@@ -50,7 +50,8 @@ const StyledTextArea = styled.textarea`
   max-height: 200px;
   border-radius: 12px;
   background: transparent;
-  
+  color: #333;
+    
   &::placeholder {
     color: #999;
   }
@@ -258,28 +259,28 @@ const ChatInput = ({ onSendMessage }) => {
   const [selectedModel, setSelectedModel] = useState(aiModels[0]);
   const [mode, setMode] = useState('search'); // 'search' or 'think'
   const fileInputRef = useRef(null);
-  
+
   const handleSend = () => {
     if (!message.trim() && attachments.length === 0) return;
-    
+
     onSendMessage({
       text: message,
       attachments,
       model: selectedModel,
       mode
     });
-    
+
     setMessage('');
     setAttachments([]);
   };
-  
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
-  
+
   const handleFileChange = (e) => {
     const newFiles = Array.from(e.target.files).map(file => ({
       id: Date.now() + Math.random().toString(36).substring(2, 10),
@@ -288,28 +289,28 @@ const ChatInput = ({ onSendMessage }) => {
       file,
       icon: file.type.startsWith('image/') ? <MdImage /> : null
     }));
-    
+
     // Limit to 5 attachments
     const updatedAttachments = [...attachments, ...newFiles].slice(0, 5);
     setAttachments(updatedAttachments);
-    
+
     // Reset the input
     e.target.value = null;
   };
-  
+
   const handleRemoveAttachment = (id) => {
     setAttachments(attachments.filter(attachment => attachment.id !== id));
   };
-  
+
   const toggleModelDropdown = () => {
     setIsModelDropdownOpen(!isModelDropdownOpen);
   };
-  
+
   const selectModel = (model) => {
     setSelectedModel(model);
     setIsModelDropdownOpen(false);
   };
-  
+
   return (
     <InputContainer>
       <InputWrapper>
@@ -328,7 +329,7 @@ const ChatInput = ({ onSendMessage }) => {
             ))}
           </AttachmentsArea>
         )}
-        
+
         <TextAreaWrapper>
           <StyledTextArea
             placeholder="Ask anything..."
@@ -337,45 +338,45 @@ const ChatInput = ({ onSendMessage }) => {
             onKeyDown={handleKeyDown}
             rows={1}
           />
-          
+
           <InputActions>
-            <ActionButton 
+            <ActionButton
               onClick={() => fileInputRef.current.click()}
               disabled={attachments.length >= 5}
               title={attachments.length >= 5 ? "Maximum 5 files allowed" : "Attach files"}
             >
               <MdAttachFile />
             </ActionButton>
-            
+
             <OptionsContainer>
               <ModeSelector>
-                <ModeButton 
-                  active={mode === 'search'} 
+                <ModeButton
+                  active={mode === 'search'}
                   onClick={() => setMode('search')}
                 >
                   <BiGlobe size={16} />
                   Search
                 </ModeButton>
-                <ModeButton 
-                  active={mode === 'think'} 
+                <ModeButton
+                  active={mode === 'think'}
                   onClick={() => setMode('think')}
                 >
                   <MdHearing size={16} />
                   Think
                 </ModeButton>
               </ModeSelector>
-              
+
               <ModelSelector>
                 <ModelButton onClick={toggleModelDropdown}>
                   <ModelLogo src={selectedModel.logo} alt={selectedModel.name} />
                   {selectedModel.name}
                   <MdKeyboardArrowDown />
                 </ModelButton>
-                
+
                 {isModelDropdownOpen && (
                   <ModelDropdown>
                     {aiModels.map(model => (
-                      <ModelOption 
+                      <ModelOption
                         key={model.id}
                         active={model.id === selectedModel.id}
                         onClick={() => selectModel(model)}
@@ -388,8 +389,8 @@ const ChatInput = ({ onSendMessage }) => {
                 )}
               </ModelSelector>
             </OptionsContainer>
-            
-            <SendButton 
+
+            <SendButton
               onClick={handleSend}
               disabled={!message.trim() && attachments.length === 0}
             >
@@ -397,7 +398,7 @@ const ChatInput = ({ onSendMessage }) => {
             </SendButton>
           </InputActions>
         </TextAreaWrapper>
-        
+
         <HiddenFileInput
           type="file"
           ref={fileInputRef}

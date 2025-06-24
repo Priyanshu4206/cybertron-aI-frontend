@@ -22,6 +22,7 @@ import { EmptyState, LoadingView } from '../components/imageGenerator/EmptyState
 import SettingsSelector from '../components/imageGenerator/SettingsSelector';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useUI } from '../context/UIContext';
 
 
 const MainContainer = styled.div`
@@ -61,7 +62,7 @@ const FormGroup = styled.div`
 
 const Label = styled.label`
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: #111827;
   
   .required {
@@ -72,7 +73,7 @@ const Label = styled.label`
 
 const CharCount = styled.div`
   text-align: right;
-  font-size: 12px;
+  font-size: 10px;
   color: ${props => props.count > 2000 ? 'red' : '#666'};
 `;
 
@@ -95,7 +96,7 @@ const SubmitButton = styled.button`
 const ImageGenerator = () => {
 
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();  
+  const { isAuthenticated } = useAuth();
 
   // Form state
   const [prompt, setPrompt] = useState('');
@@ -104,11 +105,11 @@ const ImageGenerator = () => {
   const [language, setLanguage] = useState('10');
   const [type, setType] = useState('Type');
   const [style, setStyle] = useState('Style');
-  
+
   // Generation state
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState([]);
-  
+
   // Selection state
   const [selectedImages, setSelectedImages] = useState([]);
   const [downloadMode, setDownloadMode] = useState('none');
@@ -116,22 +117,29 @@ const ImageGenerator = () => {
   // Navigation state
   const [activeNavItem, setActiveNavItem] = useState('text-to-image');
 
+  // SubSidebar Updates
+  const { isMobileView, isSubSidebarOpen, toggleSubSidebar } = useUI();
+
   // Generate images function
   const handleGenerate = () => {
     if (!prompt.trim()) return;
-    
+
     setIsGenerating(true);
-    
+
+    if (isSubSidebarOpen && isMobileView) {
+      toggleSubSidebar();
+    }
+
     // Simulate API call with timeout
     setTimeout(() => {
       const images = Array(4).fill(0).map((_, i) => ({
         id: `img-${Date.now()}-${i}`,
         url: `https://picsum.photos/seed/${Date.now() + i}/600/600`,
-        alt: `Generated image ${i+1} based on prompt: ${prompt}`,
+        alt: `Generated image ${i + 1} based on prompt: ${prompt}`,
         prompt: prompt,
         settings: { ratio: selectedRatio, language, type, style }
       }));
-      
+
       setGeneratedImages(images);
       setSelectedImages([]);
       setIsGenerating(false);
@@ -141,13 +149,13 @@ const ImageGenerator = () => {
   // Image selection functions
   const handleSelectImage = (imageId) => {
     setSelectedImages(prev => {
-      const newSelection = prev.includes(imageId) 
+      const newSelection = prev.includes(imageId)
         ? prev.filter(id => id !== imageId)
         : [...prev, imageId];
-      
+
       // Update selectAll state based on selection count
       const allSelected = newSelection.length === generatedImages.length;
-      
+
       // Update downloadMode based on selection
       if (newSelection.length === 0) {
         // No images selected - no radio button should be active
@@ -159,7 +167,7 @@ const ImageGenerator = () => {
         // Some images selected - set to 'selected' mode
         setDownloadMode('selected');
       }
-      
+
       return newSelection;
     });
   };
@@ -170,14 +178,14 @@ const ImageGenerator = () => {
       const response = await fetch(imageUrl);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      
+
       const link = document.createElement('a');
       link.href = url;
       link.download = `generated-image-${Date.now()}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       // Clean up the object URL
       window.URL.revokeObjectURL(url);
     } catch (error) {
@@ -185,7 +193,7 @@ const ImageGenerator = () => {
       // Fallback: open in new tab
       window.open(imageUrl, '_blank');
     }
-  };  
+  };
 
   const handleDownloadModeChange = (mode) => {
     // Only handle 'all' mode (selected mode is read-only)
@@ -203,21 +211,21 @@ const ImageGenerator = () => {
     }
     // Note: 'selected' mode is now read-only and controlled by individual selections
   };
-  
+
 
   const handleDownloadSelected = async () => {
     // Don't allow download if no mode is active
     if (downloadMode === 'none') return;
-    
-    const imagesToDownload = downloadMode === 'all' 
-      ? generatedImages 
+
+    const imagesToDownload = downloadMode === 'all'
+      ? generatedImages
       : generatedImages.filter(img => selectedImages.includes(img.id));
-        
+
     imagesToDownload.forEach((image, index) => {
       setTimeout(() => handleDownloadImage(image.url), 100 * index);
     });
   };
-  
+
 
   // Navigation functions
   const handleNavItemClick = (itemId, route) => {
@@ -225,11 +233,11 @@ const ImageGenerator = () => {
     // Add navigation logic here
     if (isAuthenticated) {
       if (route) {
-          navigate(route);
+        navigate(route);
       }
-  } else {
+    } else {
       navigate('/login', { state: { from: { pathname: route || '/chat' } } });
-  }
+    }
   };
 
   const handleHistoryItemClick = (historyItem) => {
@@ -241,14 +249,14 @@ const ImageGenerator = () => {
   const mainContent = (
     <PromptFormContainer>
       <PromptInput
-        label= "Image Generation Prompt" 
-        prompt={prompt} 
-        setPrompt={setPrompt} 
+        label="Image Generation Prompt"
+        prompt={prompt}
+        setPrompt={setPrompt}
       />
-      
-      <RatioSelector 
-        selectedRatio={selectedRatio} 
-        setSelectedRatio={setSelectedRatio} 
+
+      <RatioSelector
+        selectedRatio={selectedRatio}
+        setSelectedRatio={setSelectedRatio}
         options={ImageGeneratorSettings.ratioOptions}
       />
 
@@ -260,15 +268,17 @@ const ImageGenerator = () => {
           name="referenceLinks"
           placeholder="Add Reference Youtube Thumbnail Link here..."
           value={referenceLinks}
-          onChange={(e)=>setReferenceLinks(e.target.value)}
-          style= {{fontSize: '0.9rem'}}
+          size="small"
+          onChange={(e) => setReferenceLinks(e.target.value)}
+          style={{ fontSize: "0.85rem" }}
+          mb={"0px"}
         />
         <CharCount count={referenceLinks.length}>
           {referenceLinks.length}/{1000}
         </CharCount>
       </FormGroup>
-      
-      <SettingsSelector 
+
+      <SettingsSelector
         language={language} setLanguage={setLanguage}
         type={type} setType={setType}
         style={style} setStyle={setStyle}
@@ -276,11 +286,11 @@ const ImageGenerator = () => {
         typeOptions={ImageGeneratorSettings.typeOptions}
         styleOptions={ImageGeneratorSettings.styleOptions}
       />
-      
-      <SubmitButton 
-        type="submit" 
+
+      <SubmitButton
+        type="submit"
         onClick={handleGenerate}
-        disabled={!prompt.trim()||isGenerating}
+        disabled={!prompt.trim() || isGenerating}
       >
         {isGenerating ? 'Generating...' : 'Generate Image'}
       </SubmitButton>
@@ -289,7 +299,7 @@ const ImageGenerator = () => {
 
   // History content
   const historyContent = (
-    <HistoryMenu 
+    <HistoryMenu
       items={historyItems}
       onItemClick={handleHistoryItemClick}
     />
@@ -305,7 +315,7 @@ const ImageGenerator = () => {
           showHistoryToggle={true}
           historyContent={historyContent}
         />
-        
+
         <ContentArea>
           {isGenerating ? (
             <LoadingView message="Generating your images... Please wait." />
@@ -317,7 +327,7 @@ const ImageGenerator = () => {
                 onSelectImage={handleSelectImage}
                 onDownloadImage={handleDownloadImage}
               />
-              
+
               <ImageActionsBar
                 selectedImages={selectedImages}
                 totalImages={generatedImages.length}

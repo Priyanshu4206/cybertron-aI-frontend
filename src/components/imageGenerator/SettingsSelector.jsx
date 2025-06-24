@@ -7,7 +7,7 @@ const SettingsContainer = styled.div`
 
 const SettingsTitle = styled.div`
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: #111827;
   margin-bottom: 8px;
 `;
@@ -26,7 +26,7 @@ const Selector = styled.select`
   min-width: 100px;
   flex: 1;
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: #111827;
 
   &:focus {
@@ -35,11 +35,11 @@ const Selector = styled.select`
   }
 `;
 
-const SettingsSelector = ({ 
-  language, setLanguage, 
-  type, setType, 
+const SettingsSelector = ({
+  language, setLanguage,
+  type, setType,
   style, setStyle,
-  languageOptions =[],
+  languageOptions = [],
   typeOptions = [],
   styleOptions = []
 }) => {
