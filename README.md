@@ -9,7 +9,7 @@ Cybertron.AI is a powerful AI studio platform that provides tools for text gener
 - Text generation with AI
 - Chat history functionality
 - Modern responsive UI
-- Working on Microservices in backend (in progress)
+- Working on Microservices in backend
 
 ## Technology Stack
 
