@@ -25,7 +25,7 @@ Cybertron.AI is a powerful AI studio platform that provides tools for text gener
 
 - Node.js 16+ and npm
 - Firebase project (for authentication)
-- GraphQL backend service running at http://localhost:4000/graphql (or custom URL)
+- GraphQL backend service running at http://localhost:8000/graphql (or custom URL)
 
 ### Installation
 
@@ -43,7 +43,7 @@ npm install
 3. Create a `.env` file in the root directory with the following variables:
 ```
 # API URL
-VITE_API_URL=http://localhost:4000/graphql
+VITE_API_URL=http://localhost:8000
 
 # Firebase config
 VITE_FIREBASE_API_KEY=your-api-key

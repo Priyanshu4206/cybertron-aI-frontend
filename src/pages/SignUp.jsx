@@ -6,6 +6,7 @@ import * as Yup from 'yup';
 import { useAuth } from '../context/AuthContext';
 import Input from '../components/common/Input';
 import { FcGoogle } from 'react-icons/fc';
+import { useToast } from '../context/UIContext';
 
 const Container = styled.div`
   display: flex;
@@ -281,34 +282,35 @@ const SignUpSchema = Yup.object().shape({
 const SignUp = () => {
   const navigate = useNavigate();
   const { signup, loginWithGoogle } = useAuth();
-  const [submitError, setSubmitError] = useState('');
+  const { showToast, dismissToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       setSubmitting(true);
-      setSubmitError('');
-      // console.log("On Submitting: ", values);
-
+      dismissToast();
+      const loadingId = showToast('Creating your account...', { type: 'loading', duration: 10000 });
       const result = await signup({
         name: values.name,
         email: values.email,
         password: values.password,
       });
-
+      dismissToast();
       if (result.success) {
-        if (result.requiresOTP) {
-          // Redirect to OTP page with identifier
-          navigate('/otp', { state: { identifier: values.email, redirectTo: '/onboarding' } });
-        } else {
-          // Direct to onboarding (no OTP required)
-          navigate('/onboarding');
-        }
+        showToast(result.requiresOTP ? 'Account created! Please verify OTP.' : 'Account created! Redirecting...', { type: 'success' });
+        setTimeout(() => {
+          if (result.requiresOTP) {
+            navigate('/otp', { state: { identifier: values.email, redirectTo: '/onboarding' } });
+          } else {
+            navigate('/onboarding');
+          }
+        }, 900);
       } else {
-        setSubmitError(result.error || 'Registration failed. Please try again.');
+        showToast(result.error || 'Registration failed. Please try again.', { type: 'error' });
       }
     } catch (error) {
-      setSubmitError('An unexpected error occurred. Please try again.');
+      dismissToast();
+      showToast('An unexpected error occurred. Please try again.', { type: 'error' });
       console.error('Registration error:', error);
     } finally {
       setSubmitting(false);
@@ -317,7 +319,6 @@ const SignUp = () => {
 
   const handleGoogleSignup = async () => {
     setIsLoading(true);
-    setSubmitError('');
 
     try {
       const result = await loginWithGoogle();
@@ -331,10 +332,10 @@ const SignUp = () => {
           navigate('/chat');
         }
       } else {
-        setSubmitError(result.error || 'Google sign up failed. Please try again.');
+        showToast(result.error || 'Google sign up failed. Please try again.', { type: 'error' });
       }
     } catch (error) {
-      setSubmitError('An unexpected error occurred. Please try again.');
+      showToast('An unexpected error occurred. Please try again.', { type: 'error' });
       console.error('Google signup error:', error);
     } finally {
       setIsLoading(false);
@@ -352,7 +353,7 @@ const SignUp = () => {
       <Right>
         <FormContainer>
           <FormHeading>Create your account</FormHeading>
-          <ErrorText show={submitError}>{submitError}</ErrorText>
+          <ErrorText show={false}>{/* Removed submitError state, so this will always be false */}</ErrorText>
 
           <SocialButton onClick={handleGoogleSignup} disabled={isLoading}>
             <FcGoogle /> Continue with Google

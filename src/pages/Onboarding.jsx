@@ -12,6 +12,7 @@ import Step3PlansLayout from '../components/onboarding/Step3PlansLayout';
 
 // Context
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/UIContext';
 
 // Data
 import { onboardingQuestions, accountTypes, plansData, defaultFormState, mapFormDataToBackend, validateStep3, validateStep2, validateStep1 } from '../utils/onboardingData';
@@ -268,6 +269,7 @@ const SkipLink = styled(Button)`
 const Onboarding = () => {
   const navigate = useNavigate();
   const { saveFormState, completeGoogleProfile, completeProfile, user } = useAuth();
+  const { showToast, dismissToast } = useToast();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(defaultFormState);
   const [submitError, setSubmitError] = useState('');
@@ -320,34 +322,30 @@ const Onboarding = () => {
       }
       const backendData = mapFormDataToBackend(form);
       setIsSubmitting(true);
-      // If user is a Google user (firebaseUid present), complete Google profile
+      dismissToast();
+      const toastId = showToast('Updating account details...', { type: 'loading', duration: 10000 });
+      let result;
       if (user && user.firebaseUid) {
-        // console.log("User", user);
         const profileData = {
           ...backendData,
           firebaseUid: user.firebaseUid,
-          fullName: user.fullName || user.displayName,
+          displayName: user.displayName,
           email: user.email,
           phoneNumber: user.phoneNumber,
         };
-        const result = await completeGoogleProfile(profileData);
-        setIsSubmitting(false);
-        if (result.success) {
-          navigate('/chat');
-        } else {
-          setSubmitError(result.error || 'Failed to complete registration.');
-        }
+        result = await completeGoogleProfile(profileData);
       } else {
-        // For non-Google users, complete profile and redirect to chat
-        const result = await completeProfile(backendData);
-        setIsSubmitting(false);
-        if (result.success) {
-          navigate('/chat');
-        } else {
-          setSubmitError(result.error || 'Failed to complete profile.');
-          // Optionally save form state for retry
-          saveFormState({ onboarding: backendData });
-        }
+        result = await completeProfile(backendData);
+      }
+      setIsSubmitting(false);
+      dismissToast();
+      if (result && result.success) {
+        showToast('Account updated successfully!', { type: 'success' });
+        setTimeout(() => navigate('/chat'), 1200);
+      } else {
+        showToast(result?.error || 'Failed to complete profile.', { type: 'error' });
+        // Optionally save form state for retry
+        saveFormState({ onboarding: backendData });
       }
     }
   };
@@ -383,10 +381,21 @@ const Onboarding = () => {
         plan: 'free',
         billing: 'MONTHLY'
       };
-
       const backendData = mapFormDataToBackend(updatedForm);
-      saveFormState({ onboarding: backendData });
-      navigate('/login');
+      setIsSubmitting(true);
+      dismissToast();
+      const toastId = showToast('Updating account details...', { type: 'loading', duration: 10000 });
+      completeProfile(backendData).then(result => {
+        setIsSubmitting(false);
+        dismissToast();
+        if (result && result.success) {
+          showToast('Account updated successfully!', { type: 'success' });
+          setTimeout(() => navigate('/chat'), 1200);
+        } else {
+          showToast(result?.error || 'Failed to complete profile.', { type: 'error' });
+          saveFormState({ onboarding: backendData });
+        }
+      });
     }
   };
 
@@ -492,8 +501,9 @@ const Onboarding = () => {
             onContactSales={handleContactSales}
             onBack={handleBack}
             onContinue={handleContinue}
-            disableContinue={!form.plan}
+            disableContinue={!form.plan || isSubmitting}
             onSkip={() => handleSkip(3)}
+            isSubmitting={isSubmitting}
           />
         )
       }

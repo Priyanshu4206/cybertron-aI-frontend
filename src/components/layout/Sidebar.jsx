@@ -5,6 +5,7 @@ import { FaMagic, FaCreditCard, FaUserCircle, FaHome, FaSignOutAlt, FaSignInAlt,
 
 // Context
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/UIContext';
 
 const SidebarContainer = styled.div`
   width: ${({ isMobile, isOpen }) => (isMobile ? (isOpen ? '240px' : '0') : '68px')};
@@ -179,11 +180,24 @@ const Sidebar = ({ isOpen, onClose, isMobile }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout, isAuthenticated } = useAuth();
+  const { showToast, dismissToast } = useToast();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-    if (isMobile) onClose();
+  const handleLogout = async () => {
+    dismissToast();
+    const toastId = showToast('Logging out...', { type: 'loading', duration: 10000 });
+    try {
+      await logout();
+      dismissToast();
+      showToast('Logout successful!', { type: 'success' });
+      setTimeout(() => {
+        dismissToast();
+        navigate('/login');
+        if (isMobile) onClose();
+      }, 1000);
+    } catch (error) {
+      dismissToast();
+      showToast('Logout failed. Please try again.', { type: 'error' });
+    }
   };
 
   return (

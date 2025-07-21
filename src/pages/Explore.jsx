@@ -9,8 +9,8 @@ import Layout from '../components/layout/Layout';
 
 // Data
 import { aiWorks, aiTools } from '../utils/dummyData';
-import AiToolCard from '../components/explore/ToolCard';
 import AiWorkCard from '../components/explore/WorkCard';
+import AiToolCard from '../components/explore/ToolCard';
 
 const AllToolsContainer = styled.div`
   width: 100%;

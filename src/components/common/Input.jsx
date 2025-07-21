@@ -4,7 +4,7 @@ import styled, { css } from 'styled-components';
 const InputContainer = styled.div`
   position: relative;
   width: 100%;
-  margin-bottom: ${(mb) => mb};
+  margin-bottom: ${props => props.mb};
 `;
 
 const StyledInput = styled.input`

@@ -6,6 +6,7 @@ import Layout from '../layout/Layout';
 import Card from '../common/Card';
 import Button from '../common/Button';
 import Spinner from '../common/Spinner';
+import { useToast } from '../../context/UIContext';
 
 // Data
 import { toolResults } from '../../utils/dummyData';
@@ -115,6 +116,7 @@ const LoadingContainer = styled.div`
 `;
 
 const TextGenerator = () => {
+  const { showToast } = useToast();
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState('');
@@ -159,6 +161,26 @@ const TextGenerator = () => {
   return (
     <Layout title="Text Generator">
       <ToolContainer>
+        {/* Demo Toast Button */}
+        <button
+          style={{
+            margin: '24px auto',
+            display: 'block',
+            background: 'rgba(255,255,255,0.85)',
+            color: '#222',
+            border: 'none',
+            borderRadius: '12px',
+            padding: '12px 32px',
+            fontWeight: 600,
+            fontSize: '1.1rem',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
+            cursor: 'pointer',
+            transition: 'background 0.2s',
+          }}
+          onClick={() => showToast('This is a beautiful toast! 🎉', { type: 'success' })}
+        >
+          Generate Toast
+        </button>
         <InputSection>
           <Card.Body>
             <h2>Generate Text</h2>

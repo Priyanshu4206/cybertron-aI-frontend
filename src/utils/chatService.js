@@ -1,146 +1,214 @@
-import api, { graphqlRequest } from './apiService';
+import { conversationGraphqlRequest } from './apiService';
 
 // Chat related API calls
 export const chatService = {
-  // Send a new message or start a conversation
+  // Send a message in a conversation (creates conversation if conversationId is not provided)
   sendMessage: async (input) => {
     const mutation = `
-      mutation SendMessage($input: ConversationInput!) {
+      mutation SendMessage($input: SendMessageInput!) {
         sendMessage(input: $input) {
-          conversation {
+          success
+          message
+          data {
+            conversationId
+            message { id conversationId role content timestamp }
+          }
+          errors
+        }
+      }
+    `;
+    return conversationGraphqlRequest(mutation, { input }, true);
+  },
+
+  // Get a single conversation by ID
+  getConversationById: async (id) => {
+    const query = `
+      query Conversation($id: ID!) {
+        conversation(id: $id) {
+          id
+          userId
+          title
+          prompt
+          settings
+          tokensConsumed
+          status
+          errorMessage
+          isArchived
+          metadata
+          isActive
+          lastMessageAt
+          createdAt
+          updatedAt
+          messages { role content timestamp }
+        }
+      }
+    `;
+    return conversationGraphqlRequest(query, { id }, true);
+  },
+
+  // Get paginated conversations for the user
+  getConversations: async (options = {}) => {
+    const query = `
+      query Conversations($page: Int, $limit: Int) {
+        conversations(page: $page, limit: $limit) {
+          conversations {
             id
+            userId
             title
-            messages {
-              role
-              content
-              timestamp
-            }
+            prompt
             status
-            tokensConsumed
+            isArchived
             isActive
             lastMessageAt
             createdAt
+            updatedAt
+            tokensConsumed
           }
-          tokensConsumed
-          lastMessage {
-            role
-            content
-            timestamp
+          pagination {
+            currentPage
+            totalPages
+            totalItems
+            itemsPerPage
+            hasNextPage
+            hasPrevPage
+            nextPage
+            prevPage
           }
         }
       }
     `;
-    return graphqlRequest(mutation, { input }, true);
-  },
-
-  // Continue an existing conversation
-  continueConversation: async (conversationId, message, settings = {}) => {
-    const input = {
-      conversationId,
-      message,
-      settings
-    };
-    
-    return chatService.sendMessage(input);
-  },
-
-  // Get user's conversations
-  getConversations: async (options = {}) => {
-    const query = `
-      query MyConversations($limit: Int, $offset: Int, $activeOnly: Boolean, $includeArchived: Boolean) {
-        myConversations(limit: $limit, offset: $offset, activeOnly: $activeOnly, includeArchived: $includeArchived) {
-          id
-          title
-          messages {
-            role
-            content
-            timestamp
-          }
-          status
-          tokensConsumed
-          isActive
-          isArchived
-          lastMessageAt
-          createdAt
-          updatedAt
-        }
-      }
-    `;
-    
     const variables = {
-      limit: options.limit || 10,
-      offset: options.offset || 0,
-      activeOnly: options.activeOnly !== undefined ? options.activeOnly : true,
-      includeArchived: options.includeArchived || false
+      page: options.page || 1,
+      limit: options.limit || 20
     };
-    
-    return graphqlRequest(query, variables, true);
+    return conversationGraphqlRequest(query, variables, true);
   },
 
-  // Get conversation by ID
-  getConversationById: async (id) => {
-    const query = `
-      query ConversationById($id: ID!) {
-        conversationById(id: $id) {
-          id
-          title
-          prompt
-          messages {
-            role
-            content
-            timestamp
-          }
-          settings
-          status
-          tokensConsumed
-          isActive
-          isArchived
-          metadata
-          lastMessageAt
-          createdAt
-          updatedAt
-        }
-      }
-    `;
-    
-    return graphqlRequest(query, { id }, true);
-  },
-
-  // Update conversation title
-  updateConversationTitle: async (id, title) => {
+  // Create a new message in a conversation
+  createMessage: async (input) => {
     const mutation = `
-      mutation UpdateConversationTitle($id: ID!, $title: String!) {
-        updateConversationTitle(id: $id, title: $title) {
-          id
-          title
-          updatedAt
+      mutation CreateMessage($input: CreateMessageInput!) {
+        createMessage(input: $input) {
+          success
+          message
+          data {
+            id
+            conversationId
+            userId
+            content
+            type
+            role
+            status
+            aiResponse {
+              model
+              tokens { prompt completion total }
+              cost
+              processingTime
+              finishReason
+            }
+            attachments { filename url uploadedAt }
+            metadata
+            parentMessageId
+            threadId
+            position
+            readBy { userId readAt }
+            reactions { userId emoji createdAt }
+            editHistory { content editedAt editedBy }
+            isEdited
+            isDeleted
+            isPinned
+            sentAt
+            deliveredAt
+            readAt
+            createdAt
+            updatedAt
+          }
+          errors
         }
       }
     `;
-    
-    return graphqlRequest(mutation, { id, title }, true);
+    return conversationGraphqlRequest(mutation, { input }, true);
   },
 
-  // Archive conversation
+  // Get messages for a conversation
+  getMessages: async (conversationId, options = {}) => {
+    const query = `
+      query Messages($conversationId: ID!, $page: Int, $limit: Int) {
+        messages(conversationId: $conversationId, page: $page, limit: $limit) {
+          messages {
+            id
+            userId
+            content
+            type
+            role
+            status
+            aiResponse { model tokens { total } }
+            createdAt
+            updatedAt
+          }
+          pagination {
+            currentPage
+            totalPages
+            totalItems
+            itemsPerPage
+            hasNextPage
+            hasPrevPage
+            nextPage
+            prevPage
+          }
+        }
+      }
+    `;
+    const variables = {
+      conversationId,
+      page: options.page || 1,
+      limit: options.limit || 50
+    };
+    return conversationGraphqlRequest(query, variables, true);
+  },
+
+  // Archive a conversation
   archiveConversation: async (id) => {
     const mutation = `
       mutation ArchiveConversation($id: ID!) {
-        archiveConversation(id: $id)
+        archiveConversation(id: $id) {
+          success
+          message
+          data { id status updatedAt }
+          errors
+        }
       }
     `;
-    
-    return graphqlRequest(mutation, { id }, true);
+    return conversationGraphqlRequest(mutation, { id }, true);
   },
 
-  // Delete conversation
+  // Delete a conversation
   deleteConversation: async (id) => {
     const mutation = `
       mutation DeleteConversation($id: ID!) {
-        deleteConversation(id: $id)
+        deleteConversation(id: $id) {
+          success
+          message
+          errors
+        }
       }
     `;
-    
-    return graphqlRequest(mutation, { id }, true);
+    return conversationGraphqlRequest(mutation, { id }, true);
+  },
+
+  // Update conversation title or other fields
+  updateConversation: async (id, input) => {
+    const mutation = `
+      mutation UpdateConversation($id: ID!, $input: UpdateConversationInput!) {
+        updateConversation(id: $id, input: $input) {
+          success
+          message
+          data { id title updatedAt }
+          errors
+        }
+      }
+    `;
+    return conversationGraphqlRequest(mutation, { id, input }, true);
   }
 };
 

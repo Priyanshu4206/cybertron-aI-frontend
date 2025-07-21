@@ -5,6 +5,7 @@ import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import Input from '../components/common/Input';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/UIContext';
 
 const Container = styled.div`
   display: flex;
@@ -165,9 +166,10 @@ const Divider = styled.div`
 const ForgotPassword = () => {
     const navigate = useNavigate();
     const { requestPasswordReset, resetPassword } = useAuth();
+    const { showToast } = useToast();
     const [step, setStep] = useState(1); // 1: request, 2: verify/reset
-    const [submitError, setSubmitError] = useState('');
-    const [successMsg, setSuccessMsg] = useState('');
+    // Remove setSubmitError and ErrorText
+    // Use showToast for all error/info feedback
     const [isLoading, setIsLoading] = useState(false);
     const [identifier, setIdentifier] = useState('');
 
@@ -190,8 +192,7 @@ const ForgotPassword = () => {
     });
 
     const handleRequest = async (values, { setSubmitting }) => {
-        setSubmitError('');
-        setSuccessMsg('');
+        // Remove setSubmitError
         setSubmitting(true);
         setIsLoading(true);
         try {
@@ -200,14 +201,14 @@ const ForgotPassword = () => {
             else phone = values.identifier;
             const result = await requestPasswordReset(email, phone);
             if (result.success) {
-                setSuccessMsg('OTP sent! Please check your email or phone.');
+                showToast('OTP sent! Please check your email or phone.', { type: 'success' });
                 setIdentifier(values.identifier);
                 setStep(2);
             } else {
-                setSubmitError(result.error || 'Failed to request password reset.');
+                showToast(result.error || 'Failed to request password reset.', { type: 'error' });
             }
         } catch (error) {
-            setSubmitError('An unexpected error occurred. Please try again.');
+            showToast('An unexpected error occurred. Please try again.', { type: 'error' });
         } finally {
             setIsLoading(false);
             setSubmitting(false);
@@ -215,8 +216,7 @@ const ForgotPassword = () => {
     };
 
     const handleReset = async (values, { setSubmitting }) => {
-        setSubmitError('');
-        setSuccessMsg('');
+        // Remove setSubmitError
         setSubmitting(true);
         setIsLoading(true);
         try {
@@ -225,13 +225,13 @@ const ForgotPassword = () => {
             else phone = identifier;
             const result = await resetPassword(email, phone, values.otpCode, values.newPassword);
             if (result.success) {
-                setSuccessMsg('Password reset successful! You can now log in.');
+                showToast('Password reset successful! You can now log in.', { type: 'success' });
                 setTimeout(() => navigate('/login'), 2000);
             } else {
-                setSubmitError(result.error || 'Failed to reset password.');
+                showToast(result.error || 'Failed to reset password.', { type: 'error' });
             }
         } catch (error) {
-            setSubmitError('An unexpected error occurred. Please try again.');
+            showToast('An unexpected error occurred. Please try again.', { type: 'error' });
         } finally {
             setIsLoading(false);
             setSubmitting(false);
@@ -248,8 +248,7 @@ const ForgotPassword = () => {
             <Right>
                 <FormContainer>
                     <FormHeading>Reset your password</FormHeading>
-                    <ErrorText show={!!submitError}>{submitError}</ErrorText>
-                    <SuccessText show={!!successMsg}>{successMsg}</SuccessText>
+                    {/* Remove any <SuccessMsg> or similar success message display */}
                     {step === 1 && (
                         <Formik
                             initialValues={{ identifier: '' }}

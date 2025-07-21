@@ -125,7 +125,7 @@ export const AuthProvider = ({ children }) => {
         const userData = {
           firebaseUid: firebaseUser.uid,
           email: firebaseUser.email,
-          fullName: firebaseUser.displayName,
+          displayName: firebaseUser.displayName,
           phoneNumber: firebaseUser.phoneNumber || undefined,
         };
         // Immediately create initial user in DB
@@ -228,7 +228,7 @@ export const AuthProvider = ({ children }) => {
 
       // Format user data for API
       const registrationInput = {
-        fullName: userData.name,
+        displayName: userData.name,
         password: userData.password,
       };
 
@@ -395,7 +395,7 @@ export const AuthProvider = ({ children }) => {
       const registrationData = {
         firebaseUid: user.firebaseUid,
         email: user.email,
-        fullName: user.fullName,
+        displayName: user.displayName,
         // Only include onboarding fields, don't let them overwrite core user data
         password: additionalData.password || '',
         phoneNumber: additionalData.phoneNumber || '',
@@ -443,13 +443,13 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       // Check if we have user data
       if (!user || !user.firebaseUid) {
-        // console.log(user);
+        console.log(user);
         return { success: false, error: 'Missing user data.' };
       }
       // Prepare data for backend
       const profileInput = {
         firebaseUid: user.firebaseUid,
-        fullName: user.fullName || user.displayName,
+        displayName: user.displayName,
         email: user.email,
         phoneNumber: profileData.phoneNumber || user.phoneNumber || '',
         occupation: profileData.occupation,

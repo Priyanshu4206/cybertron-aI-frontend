@@ -5,6 +5,10 @@ import { BiRefresh } from 'react-icons/bi';
 import { useAuth } from '../../context/AuthContext';
 import chatService from '../../utils/chatService';
 import { formatDistanceToNow } from 'date-fns';
+import ReactDOM from 'react-dom';
+import { useToast } from '../../context/UIContext';
+import Input from '../common/Input';
+import Button from '../common/Button';
 
 const ChatHistoryContainer = styled.div`
   display: flex;
@@ -177,7 +181,7 @@ const EditTitleModal = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 10000;
 `;
 
 const ModalContent = styled.div`
@@ -193,52 +197,35 @@ const ModalTitle = styled.h3`
   margin-bottom: 16px;
 `;
 
-const TitleInput = styled.input`
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin-bottom: 16px;
-  font-size: 1rem;
-`;
-
 const ModalButtons = styled.div`
   display: flex;
   justify-content: flex-end;
   gap: 12px;
 `;
 
-const ModalButton = styled.button`
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-weight: 500;
-  cursor: pointer;
-  
-  &.cancel {
-    background: none;
-    border: 1px solid #ddd;
-  }
-  
-  &.save {
-    background-color: #000;
-    color: white;
-    border: none;
-  }
-`;
-
 /**
  * ChatHistory component that shows chat history and new chat button
  */
-const ChatHistory = ({ onNewChat, activeChatId, onHistoryItemClick }) => {
+const ChatHistory = ({ onNewChat, activeChatId, onHistoryItemClick, refreshTrigger = 0 }) => {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [editingConversation, setEditingConversation] = useState(null);
   const [newTitle, setNewTitle] = useState('');
   const { isAuthenticated } = useAuth();
+  const [isSaving, setIsSaving] = useState(false);
+  const { showToast, dismissToast } = useToast();
+
+  console.log('ChatHistory: Component rendered with props:', { 
+    activeChatId, 
+    isAuthenticated, 
+    conversationsCount: conversations.length,
+    refreshTrigger
+  });
 
   // Fetch conversations when component mounts
   useEffect(() => {
+    console.log('ChatHistory: useEffect triggered, isAuthenticated:', isAuthenticated);
     if (isAuthenticated) {
       fetchConversations();
     } else {
@@ -247,24 +234,36 @@ const ChatHistory = ({ onNewChat, activeChatId, onHistoryItemClick }) => {
     }
   }, [isAuthenticated]);
 
+  // Refresh conversations when refreshTrigger changes
+  useEffect(() => {
+    if (refreshTrigger > 0 && isAuthenticated) {
+      console.log('ChatHistory: refreshTrigger changed, refreshing conversations');
+      fetchConversations();
+    }
+  }, [refreshTrigger, isAuthenticated]);
+
   // Fetch conversations from API
   const fetchConversations = async () => {
     if (!isAuthenticated) {
+      console.log('ChatHistory: Not authenticated, clearing conversations');
       setConversations([]);
       setLoading(false);
       return;
     }
 
     try {
+      console.log('ChatHistory: Fetching conversations...');
       setLoading(true);
       const result = await chatService.getConversations({
         limit: 20,
         activeOnly: true
       });
 
-      if (result.success) {
+      console.log('ChatHistory: API response:', result);
+
+      if (result.success && result.data.conversations) {
         // Format conversations
-        const formattedConversations = (result.data.myConversations || [])
+        const formattedConversations = (result.data.conversations.conversations || [])
           .map(conversation => ({
             id: conversation.id,
             title: conversation.title || 'Untitled Chat',
@@ -273,12 +272,13 @@ const ChatHistory = ({ onNewChat, activeChatId, onHistoryItemClick }) => {
           }))
           .sort((a, b) => b.timestamp - a.timestamp); // Most recent first
 
+        console.log('ChatHistory: Formatted conversations:', formattedConversations);
         setConversations(formattedConversations);
       } else {
-        console.error('Failed to fetch conversations:', result.error);
+        console.error('ChatHistory: Failed to fetch conversations:', result.error);
       }
     } catch (error) {
-      console.error('Error fetching conversations:', error);
+      console.error('ChatHistory: Error fetching conversations:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -343,16 +343,16 @@ const ChatHistory = ({ onNewChat, activeChatId, onHistoryItemClick }) => {
     if (!editingConversation || !newTitle.trim()) {
       return;
     }
-
+    setIsSaving(true);
+    dismissToast();
+    const loadingId = showToast('Renaming chat...', { type: 'loading', duration: 10000 });
     try {
-      setLoading(true);
-      const result = await chatService.updateConversationTitle(
+      const result = await chatService.updateConversation(
         editingConversation.id,
-        newTitle.trim()
+        { title: newTitle.trim() }
       );
-
+      dismissToast();
       if (result.success) {
-        // Update local state
         setConversations(prev =>
           prev.map(conv =>
             conv.id === editingConversation.id
@@ -360,19 +360,17 @@ const ChatHistory = ({ onNewChat, activeChatId, onHistoryItemClick }) => {
               : conv
           )
         );
-
-        // Close modal
         setEditingConversation(null);
         setNewTitle('');
+        showToast('Chat renamed successfully!', { type: 'success' });
       } else {
-        console.error('Failed to update title:', result.error);
-        alert('Failed to update title. Please try again.');
+        showToast(result.error || 'Failed to update title. Please try again.', { type: 'error' });
       }
     } catch (error) {
-      console.error('Error updating title:', error);
-      alert('An error occurred while updating the title.');
+      dismissToast();
+      showToast('An error occurred while updating the title.', { type: 'error' });
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -439,33 +437,39 @@ const ChatHistory = ({ onNewChat, activeChatId, onHistoryItemClick }) => {
       </HistoryList>
 
       {/* Edit Title Modal */}
-      {editingConversation && (
+      {editingConversation && ReactDOM.createPortal(
         <EditTitleModal>
           <ModalContent>
             <ModalTitle>Edit Chat Title</ModalTitle>
-            <TitleInput
+            <Input
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               placeholder="Enter a title"
               autoFocus
+              mb="16px"
             />
             <ModalButtons>
-              <ModalButton
-                className="cancel"
+              <Button
+                variant="secondary"
                 onClick={() => setEditingConversation(null)}
+                disabled={isSaving}
+                style={{ maxWidth: 'none', width: 'auto', marginTop: 0 }}
               >
                 Cancel
-              </ModalButton>
-              <ModalButton
-                className="save"
+              </Button>
+              <Button
                 onClick={handleSaveTitle}
-                disabled={!newTitle.trim()}
+                disabled={!newTitle.trim() || isSaving}
+                isLoading={isSaving}
+                loadingText="Saving..."
+                style={{ maxWidth: 'none', width: 'auto', marginTop: 0 }}
               >
                 Save
-              </ModalButton>
+              </Button>
             </ModalButtons>
           </ModalContent>
-        </EditTitleModal>
+        </EditTitleModal>,
+        document.body
       )}
     </ChatHistoryContainer>
   );

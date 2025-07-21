@@ -27,7 +27,7 @@ import ScriptGenerator from './pages/ScriptGenerator';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 // UI Context
-import { UIProvider } from './context/UIContext';
+import { UIProvider, ToastProvider } from './context/UIContext';
 
 // Loading Spinner
 import Spinner from './components/common/Spinner';
@@ -86,76 +86,78 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
-      <AuthProvider>
-        <UIProvider>
-          <Router>
-            <Routes>
-              {/* Auth Routes - Public Only (redirect to /chat if already logged in) */}
-              <Route path="/signup" element={
-                <PublicOnlyRoute>
-                  <SignUp />
-                </PublicOnlyRoute>
-              } />
-              <Route path="/login" element={
-                <PublicOnlyRoute>
-                  <Login />
-                </PublicOnlyRoute>
-              } />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/otp" element={<OTP />} /> {/* Keep OTP accessible from both states */}
-              <Route path="/onboarding" element={
-                <Onboarding />
-              } />
+      <ToastProvider>
+        <AuthProvider>
+          <UIProvider>
+            <Router>
+              <Routes>
+                {/* Auth Routes - Public Only (redirect to /chat if already logged in) */}
+                <Route path="/signup" element={
+                  <PublicOnlyRoute>
+                    <SignUp />
+                  </PublicOnlyRoute>
+                } />
+                <Route path="/login" element={
+                  <PublicOnlyRoute>
+                    <Login />
+                  </PublicOnlyRoute>
+                } />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/otp" element={<OTP />} /> {/* Keep OTP accessible from both states */}
+                <Route path="/onboarding" element={
+                  <Onboarding />
+                } />
 
-              {/* Main App Routes - Protected */}
-              <Route path="/explore" element={
-                <ProtectedRoute>
-                  <Explore />
-                </ProtectedRoute>
-              } />
+                {/* Main App Routes - Protected */}
+                <Route path="/explore" element={
+                  <ProtectedRoute>
+                    <Explore />
+                  </ProtectedRoute>
+                } />
 
-              {/* Tool Routes - Protected */}
-              <Route path="/works/text-generator" element={
-                <ProtectedRoute>
-                  <TextGenerator />
-                </ProtectedRoute>
-              } />
-              <Route path="/tools/script-writing" element={
-                <ProtectedRoute>
-                  <ScriptGenerator />
-                </ProtectedRoute>
-              } />
-              <Route path="/tools/text-to-image" element={
-                <ProtectedRoute>
-                  <ImageGenerator />
-                </ProtectedRoute>
-              } />
-              <Route path="/tools/thumbnail-creation" element={
-                <ProtectedRoute>
-                  <ThumbnailGenerator />
-                </ProtectedRoute>
-              } />
-              <Route path="/tools/content-generator" element={
-                <ProtectedRoute>
-                  <ContentGenerator />
-                </ProtectedRoute>
-              } />
+                {/* Tool Routes - Protected */}
+                <Route path="/works/text-generator" element={
+                  <ProtectedRoute>
+                    <TextGenerator />
+                  </ProtectedRoute>
+                } />
+                <Route path="/tools/script-writing" element={
+                  <ProtectedRoute>
+                    <ScriptGenerator />
+                  </ProtectedRoute>
+                } />
+                <Route path="/tools/text-to-image" element={
+                  <ProtectedRoute>
+                    <ImageGenerator />
+                  </ProtectedRoute>
+                } />
+                <Route path="/tools/thumbnail-creation" element={
+                  <ProtectedRoute>
+                    <ThumbnailGenerator />
+                  </ProtectedRoute>
+                } />
+                <Route path="/tools/content-generator" element={
+                  <ProtectedRoute>
+                    <ContentGenerator />
+                  </ProtectedRoute>
+                } />
 
-              {/* Pricing Page */}
-              <Route path="/pricing" element={<Pricing />} />
+                {/* Pricing Page */}
+                <Route path="/pricing" element={<Pricing />} />
 
-              {/* Main App Routes - Protected */}
-              <Route path="/chat" element={<AiChat />} />
+                {/* Main App Routes - Protected */}
+                <Route path="/chat" element={<AiChat />} />
 
-              {/* Allow public landing at /chat but protect inner content */}
-              <Route path="/" element={<Navigate to="/chat" />} />
+                {/* Allow public landing at /chat but protect inner content */}
+                <Route path="/" element={<Navigate to="/chat" />} />
 
-              {/* Catch all other routes */}
-              <Route path="*" element={<Navigate to="/chat" />} />
-            </Routes>
-          </Router>
-        </UIProvider>
-      </AuthProvider>
+                {/* Catch all other routes */}
+                <Route path="*" element={<Navigate to="/chat" />} />
+              </Routes>
+            </Router>
+          </UIProvider>
+        </AuthProvider>
+      </ToastProvider>
     </ThemeProvider>
   );
 }

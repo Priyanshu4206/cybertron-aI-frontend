@@ -6,6 +6,7 @@ import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import Input from '../components/common/Input';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/UIContext';
 
 // Future Social Login
 // import { FaFacebook, FaGithub, FaKey } from 'react-icons/fa';
@@ -283,14 +284,13 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, loginWithGoogle } = useAuth();
-  const [submitError, setSubmitError] = useState('');
+  const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
   // Get the redirect path from state or default to '/chat'
   const from = location.state?.from?.pathname || '/chat';
 
   const handleSubmit = async (values, { setSubmitting }) => {
-    setSubmitError('');
     setSubmitting(true);
 
     try {
@@ -313,10 +313,10 @@ const Login = () => {
           navigate(from);
         }
       } else {
-        setSubmitError(result.error || 'Failed to log in. Please try again.');
+        showToast(result.error || 'Failed to log in. Please try again.', { type: 'error' });
       }
     } catch (error) {
-      setSubmitError('An unexpected error occurred. Please try again.');
+      showToast('An unexpected error occurred. Please try again.', { type: 'error' });
       console.error('Login error:', error);
     } finally {
       setSubmitting(false);
@@ -325,7 +325,6 @@ const Login = () => {
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
-    setSubmitError('');
 
     try {
       const result = await loginWithGoogle();
@@ -339,10 +338,10 @@ const Login = () => {
           navigate(from);
         }
       } else {
-        setSubmitError(result.error || 'Google login failed. Please try again.');
+        showToast(result.error || 'Google login failed. Please try again.', { type: 'error' });
       }
     } catch (error) {
-      setSubmitError('An unexpected error occurred. Please try again.');
+      showToast('An unexpected error occurred. Please try again.', { type: 'error' });
       console.error('Google login error:', error);
     } finally {
       setIsLoading(false);
@@ -359,7 +358,7 @@ const Login = () => {
       <Right>
         <FormContainer>
           <FormHeading>Log in to your account</FormHeading>
-          <ErrorText show={submitError}>{submitError}</ErrorText>
+          <ErrorText show={false}>{/* Removed as per edit hint */}</ErrorText>
 
           <SocialButton onClick={handleGoogleLogin} disabled={isLoading}>
             <FcGoogle /> Continue with Google

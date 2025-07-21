@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { createElement } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -242,6 +242,13 @@ const AiChat = () => {
   const chatInterfaceRef = useRef(null);
   const [activeNavItem, setActiveNavItem] = useState('text-generator');
   const [activeConversationId, setActiveConversationId] = useState(null);
+  const [refreshHistoryTrigger, setRefreshHistoryTrigger] = useState(0);
+
+  // Shared function to refresh chat history
+  const refreshChatHistory = useCallback(() => {
+    console.log('AiChat: refreshChatHistory called');
+    setRefreshHistoryTrigger(prev => prev + 1);
+  }, []);
 
   // Handle tool click with auth check
   const handleToolClick = (route) => {
@@ -265,21 +272,43 @@ const AiChat = () => {
 
   // Handle send message
   const handleSendMessage = (message) => {
+    console.log('AiChat: handleSendMessage called with:', message);
     if (chatInterfaceRef.current) {
+      console.log('AiChat: Sending message to ChatInterface...');
       chatInterfaceRef.current.handleSendMessage(message);
       setIsChatActive(true); // Show chat interface when sending message
+      console.log('AiChat: Chat activated');
+    } else {
+      console.log('AiChat: chatInterfaceRef.current is null');
     }
   };
 
   // Handle new chat
   const handleNewChat = () => {
+    console.log('AiChat: handleNewChat called');
     if (chatInterfaceRef.current) {
+      console.log('AiChat: Resetting chat...');
       chatInterfaceRef.current.resetChat();
       if (isSubSidebarOpen && isMobileView) {
+        console.log('AiChat: Closing sidebar on mobile');
         toggleSubSidebar();
       }
       setIsChatActive(false);
       setActiveConversationId(null);
+      
+      // Trigger a refresh of chat history to show the updated list
+      // This ensures the history is updated immediately when starting a new chat
+      console.log('AiChat: Scheduling chat history refresh...');
+      setTimeout(() => {
+        if (chatInterfaceRef.current && chatInterfaceRef.current.fetchConversations) {
+          console.log('AiChat: Calling fetchConversations...');
+          chatInterfaceRef.current.fetchConversations();
+        } else {
+          console.log('AiChat: fetchConversations not available');
+        }
+      }, 100);
+    } else {
+      console.log('AiChat: chatInterfaceRef.current is null');
     }
   };
 
@@ -339,6 +368,7 @@ const AiChat = () => {
               onNewChat={handleNewChat}
               activeChatId={activeConversationId}
               onHistoryItemClick={handleConversationClick}
+              refreshTrigger={refreshHistoryTrigger}
             />
           }
           navigationContent={<NavigationList activeItem={activeNavItem} onSelectItem={handleNavItemClick} />}
@@ -357,6 +387,7 @@ const AiChat = () => {
                 onNewChat={handleNewChat}
                 activeChatId={activeConversationId}
                 onHistoryItemClick={handleConversationClick}
+                refreshTrigger={refreshHistoryTrigger}
               />
             }
             navigationContent={<NavigationList activeItem={activeNavItem} onSelectItem={handleNavItemClick} />}
@@ -366,7 +397,7 @@ const AiChat = () => {
         }
         <ContentArea>
           <ChatContent isChatActive={isChatActive}>
-            <ChatInterface ref={chatInterfaceRef} />
+            <ChatInterface ref={chatInterfaceRef} onRefreshHistory={refreshChatHistory} />
             <AskBox
               onSendMessage={handleSendMessage}
               isFixed={isChatActive}

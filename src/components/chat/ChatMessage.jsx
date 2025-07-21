@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { MdContentCopy, MdCheck } from 'react-icons/md';
+import MarkdownRenderer from './MarkdownRenderer';
 
 const MessageContainer = styled.div`
   display: flex;
@@ -95,6 +96,64 @@ const MessageText = styled.div`
       padding: 10px 14px;
     `}
   }
+
+  /* Markdown styling for AI messages */
+  ${({ isAI }) => isAI && `
+    h1, h2, h3 {
+      margin: 8px 0 4px 0;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    h1 { font-size: 1.4rem; }
+    h2 { font-size: 1.2rem; }
+    h3 { font-size: 1.1rem; }
+    
+    strong {
+      font-weight: 600;
+    }
+    
+    em {
+      font-style: italic;
+    }
+    
+    code {
+      background-color: #f0f0f0;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85em;
+    }
+    
+    /* Syntax highlighter overrides */
+    pre {
+      margin: 6px 0 !important;
+      border-radius: 6px !important;
+      border: 1px solid #e0e0e0 !important;
+    }
+    
+    ul {
+      margin: 4px 0;
+      padding-left: 20px;
+    }
+    
+    li {
+      margin: 2px 0;
+      line-height: 1.4;
+    }
+    
+    p {
+      margin: 4px 0;
+    }
+    
+    blockquote {
+      border-left: 4px solid #e0e0e0;
+      margin: 6px 0;
+      padding-left: 16px;
+      color: #666;
+      font-style: italic;
+    }
+  `}
 `;
 
 const ThinkingIndicator = styled.div`
@@ -223,7 +282,9 @@ const ChatMessage = ({
   message,
   isAI = false,
   isThinking = false,
-  attachments = []
+  attachments = [],
+  isTyping = false,
+  onTypingComplete = null
 }) => {
   const [copied, setCopied] = useState(false);
   const MessageWrapper = isAI ? AIMessageContainer : UserMessageContainer;
@@ -253,7 +314,18 @@ const ChatMessage = ({
           </ThinkingIndicator>
         ) : (
           <>
-            <MessageText isUser={isUser} isAI={isAI}>{message}</MessageText>
+            <MessageText isUser={isUser} isAI={isAI}>
+              {isAI ? (
+                <MarkdownRenderer 
+                  content={message}
+                  isTyping={isTyping}
+                  typingSpeed={15}
+                  onTypingComplete={onTypingComplete}
+                />
+              ) : (
+                message
+              )}
+            </MessageText>
 
             {attachments.length > 0 && attachments.map((file, index) => (
               <FileAttachment key={index} isUser={isUser}>

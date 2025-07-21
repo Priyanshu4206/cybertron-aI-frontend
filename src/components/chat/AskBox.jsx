@@ -165,7 +165,7 @@ const AskBox = ({ onSendMessage, isFixed = false }) => {
 
     // Create message object
     const message = {
-      text: inputValue,
+      text: inputValue.trim(),
       mode,
       attachments: []
     };
@@ -175,12 +175,25 @@ const AskBox = ({ onSendMessage, isFixed = false }) => {
       onSendMessage(message);
     }
 
-    // Clear input
+    // Clear input and reset textarea
     setInputValue('');
+    if (inputRef.current) {
+      inputRef.current.value = '';
+      inputRef.current.style.height = 'auto';
+    }
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault(); // Prevent default Enter behavior
+      handleSendMessage();
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    // Handle Enter key properly
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
       handleSendMessage();
     }
   };
@@ -193,6 +206,7 @@ const AskBox = ({ onSendMessage, isFixed = false }) => {
           value={inputValue}
           onChange={handleInputChange}
           onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown}
           ref={inputRef}
         />
       </AskInputRow>

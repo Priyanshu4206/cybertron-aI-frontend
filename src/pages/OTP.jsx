@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/UIContext';
 
 const Container = styled.div`
   display: flex;
@@ -297,6 +298,7 @@ const OTP = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { verifyOTP, resendOTP } = useAuth();
+  const { showToast, dismissToast } = useToast();
   const [otpValues, setOtpValues] = useState(['', '', '', '']); // Using 4 digits OTP
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResending, setIsResending] = useState(false);
@@ -346,12 +348,6 @@ const OTP = () => {
     if (value && index < otpValues.length - 1) {
       inputRefs.current[index + 1].focus();
     }
-
-    // Auto-submit if all fields are filled
-    const allFilled = newOtpValues.every(val => val.length === 1);
-    if (allFilled && index === otpValues.length - 1) {
-      handleSubmit(newOtpValues);
-    }
   };
 
   const handleKeyDown = (index, e) => {
@@ -363,37 +359,32 @@ const OTP = () => {
   const handleSubmit = async (values = otpValues) => {
     const otpCode = values.join('');
     if (otpCode.length !== otpValues.length) {
-      setError(`Please enter all ${otpValues.length} digits`);
+      dismissToast();
+      showToast(`Please enter all ${otpValues.length} digits`, { type: 'error' });
       return;
     }
 
     setIsSubmitting(true);
     setError('');
-
+    dismissToast();
+    const toastId = showToast('Verifying code...', { type: 'loading', duration: 10000 });
     try {
-      const verificationData = {
-        otpCode
-      };
-
-      // Add email or phone to verification data
+      const verificationData = { otpCode };
       if (identifier) {
-        if (identifier.includes('@')) {
-          verificationData.email = identifier;
-        } else {
-          verificationData.phoneNumber = identifier;
-        }
+        if (identifier.includes('@')) verificationData.email = identifier;
+        else verificationData.phoneNumber = identifier;
       }
-
       const result = await verifyOTP(otpCode);
-
+      dismissToast();
       if (result.success) {
-        // OTP verified successfully - redirect to the requested page (default to onboarding)
-        navigate(redirectTo || '/onboarding');
+        showToast('Verification successful! Redirecting...', { type: 'success' });
+        setTimeout(() => navigate(redirectTo || '/onboarding'), 1200);
       } else {
-        setError(result.error || 'Invalid OTP code. Please try again.');
+        showToast(result.error || 'Invalid OTP code. Please try again.', { type: 'error' });
       }
     } catch (error) {
-      setError('An unexpected error occurred. Please try again.');
+      dismissToast();
+      showToast('An unexpected error occurred. Please try again.', { type: 'error' });
       console.error('OTP verification error:', error);
     } finally {
       setIsSubmitting(false);
@@ -402,21 +393,22 @@ const OTP = () => {
 
   const handleResendOTP = async () => {
     if (resendTimeout > 0 || !identifier) return;
-
     setIsResending(true);
     setError('');
-
+    dismissToast();
+    const toastId = showToast('Resending code...', { type: 'loading', duration: 10000 });
     try {
       const result = await resendOTP(identifier);
-
+      dismissToast();
       if (result.success) {
-        // Start the resend cooldown timer (60 seconds)
         setResendTimeout(60);
+        showToast('OTP resent! Please check your email or phone.', { type: 'success' });
       } else {
-        setError(result.error || 'Failed to resend OTP. Please try again.');
+        showToast(result.error || 'Failed to resend OTP. Please try again.', { type: 'error' });
       }
     } catch (error) {
-      setError('Failed to resend OTP. Please try again.');
+      dismissToast();
+      showToast('Failed to resend OTP. Please try again.', { type: 'error' });
       console.error('Resend OTP error:', error);
     } finally {
       setIsResending(false);
@@ -472,8 +464,6 @@ const OTP = () => {
               />
             ))}
           </OTPInputContainer>
-
-          <ErrorMessage show={error}>{error}</ErrorMessage>
 
           <ContinueButton
             onClick={() => handleSubmit()}

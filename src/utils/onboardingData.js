@@ -326,7 +326,7 @@ export const plansData = {
 export const mapFormDataToBackend = (formData) => {
   return {
     // Basic user info
-    fullName: formData.fullName || '',
+    displayName: formData.fullName || '',
     email: formData.email || '',
     phoneNumber: formData.phoneNumber || '',
     password: formData.password || '',

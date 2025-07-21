@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } f
 import styled from 'styled-components';
 import { useUI } from '../../context/UIContext';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/UIContext';
 import chatService from '../../utils/chatService';
 
 // Components
@@ -48,26 +49,18 @@ const WelcomeText = styled.p`
   line-height: 1.6;
 `;
 
-const ErrorMessage = styled.div`
-  color: #e53e3e;
-  background-color: #fee2e2;
-  padding: 12px;
-  border-radius: 8px;
-  margin: 12px 0;
-  text-align: center;
-`;
-
-const ChatInterface = forwardRef((props, ref) => {
+const ChatInterface = forwardRef(({ onRefreshHistory }, ref) => {
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
-  const [error, setError] = useState('');
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [conversations, setConversations] = useState([]);
   const [isLoadingConversation, setIsLoadingConversation] = useState(false);
+  const [typingMessageId, setTypingMessageId] = useState(null);
 
   const messagesEndRef = useRef(null);
   const { isChatActive } = useUI();
   const { isAuthenticated } = useAuth();
+  const { showToast, dismissToast } = useToast();
 
   // Expose methods to parent component
   useImperativeHandle(ref, () => ({
@@ -76,10 +69,12 @@ const ChatInterface = forwardRef((props, ref) => {
       setMessages([]);
       setIsTyping(false);
       setCurrentConversationId(null);
-      setError('');
     },
     loadChatById: (conversationId) => {
       loadConversation(conversationId);
+    },
+    fetchConversations: () => {
+      fetchConversations();
     }
   }));
 
@@ -99,17 +94,26 @@ const ChatInterface = forwardRef((props, ref) => {
 
   // Load conversations from API
   const fetchConversations = async () => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      console.log('ChatInterface: Not authenticated, skipping fetchConversations');
+      return;
+    }
 
     try {
+      console.log('ChatInterface: Fetching conversations...');
       setIsLoadingConversation(true);
       const result = await chatService.getConversations();
 
+      console.log('ChatInterface: API response:', result);
+
       if (result.success) {
-        setConversations(result.data.myConversations || []);
+        const conversations = result.data.conversations?.conversations || [];
+        console.log('ChatInterface: Setting conversations:', conversations);
+        setConversations(conversations);
       }
     } catch (error) {
-      console.error('Failed to fetch conversations:', error);
+      console.error('ChatInterface: Failed to fetch conversations:', error);
+      showToast('Failed to load conversations', { type: 'error' });
     } finally {
       setIsLoadingConversation(false);
     }
@@ -123,8 +127,8 @@ const ChatInterface = forwardRef((props, ref) => {
       setIsLoadingConversation(true);
       const result = await chatService.getConversationById(conversationId);
 
-      if (result.success && result.data.conversationById) {
-        const conversation = result.data.conversationById;
+      if (result.success && result.data.conversation) {
+        const conversation = result.data.conversation;
 
         // Format messages for display
         const formattedMessages = conversation.messages.map((msg, index) => ({
@@ -138,21 +142,17 @@ const ChatInterface = forwardRef((props, ref) => {
         setCurrentConversationId(conversationId);
         setMessages(formattedMessages);
       } else {
-        setError('Failed to load conversation. It may have been deleted or is unavailable.');
+        showToast('Failed to load conversation. It may have been deleted or is unavailable.', { type: 'error' });
       }
-    } catch (error) {
-      setError('Failed to load conversation. Please try again.');
-      console.error('Failed to load conversation:', error);
-    } finally {
+          } catch (error) {
+        showToast('Failed to load conversation. Please try again.', { type: 'error' });
+        console.error('Failed to load conversation:', error);
+      } finally {
       setIsLoadingConversation(false);
     }
   };
 
   const handleSendMessage = async (messageData) => {
-    // Reset error state
-    setError('');
-
-    // Add user message to chat
     const userMessage = {
       id: Date.now(),
       text: messageData.text,
@@ -160,75 +160,75 @@ const ChatInterface = forwardRef((props, ref) => {
       isAI: false,
       timestamp: new Date()
     };
-
     setMessages(prev => [...prev, userMessage]);
     setIsTyping(true);
-
+    
     try {
       if (isAuthenticated) {
-        // Prepare input for the API
+        let conversationId = currentConversationId;
+        let response;
+        // Always use sendMessage, let backend create conversation if needed
         const input = {
+          conversationId: conversationId || undefined,
           message: messageData.text,
-          settings: {
-            temperature: messageData.mode === 'search' ? 0.3 : 0.7
-          }
+          settings: { temperature: 0.7, maxTokens: 1000 }
         };
-
-        // If continuing a conversation, add the conversation ID
-        if (currentConversationId) {
-          input.conversationId = currentConversationId;
-        } else if (messages.length === 0) {
-          // If this is a new conversation, add a title
-          input.title = messageData.text.substring(0, 50) + (messageData.text.length > 50 ? '...' : '');
-        }
-
-        // Send message to API
-        const response = await chatService.sendMessage(input);
-
-        if (response.success) {
-          const conversation = response.data.sendMessage.conversation;
-          const lastMessage = response.data.sendMessage.lastMessage;
-
-          // Format AI response
+        response = await chatService.sendMessage(input);
+        if (response.success && response.data.sendMessage?.data) {
+          const { conversationId: newConvId, message: aiMsg } = response.data.sendMessage.data;
+          const wasNewConversation = !conversationId; // Check if this was a new conversation
+          if (!conversationId) {
+            conversationId = newConvId;
+            setCurrentConversationId(conversationId);
+          }
           const aiResponse = {
-            id: Date.now() + 1,
-            text: lastMessage.content,
-            isAI: true,
-            timestamp: new Date(lastMessage.timestamp),
-            tokensConsumed: response.data.sendMessage.tokensConsumed
+            id: aiMsg.id || Date.now() + 1,
+            text: aiMsg.content,
+            isAI: aiMsg.role === 'ASSISTANT' || aiMsg.role === 'assistant',
+            timestamp: new Date(aiMsg.timestamp)
           };
-
-          setCurrentConversationId(conversation.id);
           setIsTyping(false);
           setMessages(prev => [...prev, aiResponse]);
-
-          // Refresh conversations list
+          // Set the typing message ID for animation
+          setTypingMessageId(aiResponse.id);
+          
           fetchConversations();
+          // Only trigger chat history refresh if this was a NEW conversation
+          if (wasNewConversation && onRefreshHistory) {
+            console.log('ChatInterface: Calling onRefreshHistory - NEW conversation created');
+            onRefreshHistory();
+          } else {
+            console.log('ChatInterface: Skipping onRefreshHistory - existing conversation');
+          }
         } else {
-          setError(response.error || 'Failed to generate response. Please try again.');
+          showToast(response.error || 'Failed to generate response. Please try again.', { type: 'error' });
           setIsTyping(false);
         }
       } else {
-        // Use mock response for non-authenticated users
         setTimeout(() => {
           const mockResponse = getMockResponse(messageData.text, messageData.mode);
-
           const aiResponse = {
             id: Date.now() + 1,
             text: mockResponse,
             isAI: true,
             timestamp: new Date()
           };
-
           setIsTyping(false);
           setMessages(prev => [...prev, aiResponse]);
+          // Set the typing message ID for animation
+          setTypingMessageId(aiResponse.id);
         }, 2000);
       }
     } catch (error) {
       console.error('Message sending error:', error);
-      setError('Failed to send message. Please try again.');
+      showToast('Failed to send message. Please try again.', { type: 'error' });
       setIsTyping(false);
     }
+  };
+
+  // Handle typing animation completion
+  const handleTypingComplete = (messageId) => {
+    setTypingMessageId(null);
   };
 
   // Mock AI response for non-authenticated users
@@ -243,8 +243,6 @@ const ChatInterface = forwardRef((props, ref) => {
   return (
     <ChatContainer isChatActive={isChatActive}>
       <MessagesContainer className="scrollable-content">
-        {error && <ErrorMessage>{error}</ErrorMessage>}
-
         {messages.length === 0 ? (
           <WelcomeContainer>
             <WelcomeTitle>Welcome to Cybertron.ai Chat</WelcomeTitle>
@@ -260,6 +258,8 @@ const ChatInterface = forwardRef((props, ref) => {
               message={message.text}
               isAI={message.isAI}
               attachments={message.attachments || []}
+              isTyping={message.isAI && typingMessageId === message.id}
+              onTypingComplete={() => handleTypingComplete(message.id)}
             />
           ))
         )}
